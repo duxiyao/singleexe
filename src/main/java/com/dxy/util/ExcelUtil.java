@@ -2,20 +2,22 @@ package com.dxy.util;
 
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.metadata.BaseRowModel;
+import com.alibaba.excel.metadata.CellData;
+import com.alibaba.excel.metadata.CellExtra;
 import com.alibaba.excel.metadata.Sheet;
+import com.alibaba.excel.read.listener.ReadListener;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  * @description:
@@ -365,5 +367,128 @@ public class ExcelUtil {
 //
 //        }
     }
+
     /************************匿名内部类结束，可以提取出去***************************/
+
+
+    private static Map<String, Field> parseObj(Class excelData1Class) {
+        Map<String, Field> map = new HashMap<>();
+        Field[] fields = excelData1Class.getDeclaredFields();
+        for (Field field : fields) {
+            ExcelProperty excelProperty = field.getAnnotation(ExcelProperty.class);
+            String h = excelProperty.value()[0];
+            map.put(h, field);
+        }
+        return map;
+    }
+
+    public static List<String> readTitles(String filePath) {
+        List<String> ret = new ArrayList<>();
+
+        EasyExcelFactory.read(new File(filePath), new ReadListener<Map<Integer, String>>() {
+            @Override
+            public void onException(Exception e, AnalysisContext analysisContext) throws Exception {
+            }
+
+            @Override
+            public void invokeHead(Map<Integer, CellData> map, AnalysisContext analysisContext) {
+                Iterator<Integer> iterator = map.keySet().iterator();
+                iterator.forEachRemaining(integer -> {
+                    ret.add(map.get(integer).getStringValue());
+                });
+            }
+
+            @Override
+            public void invoke(Map<Integer, String> o, AnalysisContext analysisContext) {
+            }
+
+            @Override
+            public void extra(CellExtra cellExtra, AnalysisContext analysisContext) {
+            }
+
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext analysisContext) {
+            }
+
+            @Override
+            public boolean hasNext(AnalysisContext analysisContext) {
+                return true;
+            }
+        })
+                .doReadAll();
+        return ret;
+    }
+
+    public static <T> List<T> read(String filePath, Class<T> dcls) {
+        List<T> ret = new ArrayList<>();
+        Map<String, Field> clsHeader = parseObj(dcls);
+        Map<Integer, String> dataHeader = new HashMap<>();
+
+        EasyExcelFactory.read(new File(filePath), new ReadListener<Map<Integer, String>>() {
+
+            @Override
+            public void onException(Exception e, AnalysisContext analysisContext) throws Exception {
+//                String s = "";
+            }
+
+            @Override
+            public void invokeHead(Map<Integer, CellData> map, AnalysisContext analysisContext) {
+                Iterator<Integer> iterator = map.keySet().iterator();
+                iterator.forEachRemaining(integer -> {
+                    dataHeader.put(integer, map.get(integer).getStringValue());
+                });
+//                String s = "";
+            }
+
+            @Override
+            public void invoke(Map<Integer, String> o, AnalysisContext analysisContext) {
+
+                T t = null;
+                try {
+                    t = dcls.newInstance();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                Iterator<Integer> iterator = o.keySet().iterator();
+                T finalT = t;
+                iterator.forEachRemaining(i -> {
+                    String h = dataHeader.get(i);
+                    Field field = clsHeader.get(h);
+                    String v = o.get(i);
+                    try {
+                        field.setAccessible(true);
+                        field.set(finalT, v);
+                    } catch (Exception e) {
+                        if (!(e instanceof NullPointerException)) {
+                            e.printStackTrace();
+                        }
+                    }
+//                    String s = "";
+                });
+
+                ret.add(finalT);
+//                String s = "";
+            }
+
+            @Override
+            public void extra(CellExtra cellExtra, AnalysisContext analysisContext) {
+//                String s = "";
+            }
+
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext analysisContext) {
+//                String s = "";
+            }
+
+            @Override
+            public boolean hasNext(AnalysisContext analysisContext) {
+                return true;
+            }
+        })
+                .doReadAll();
+//                .doReadAllSync();
+        return ret;
+    }
 }
