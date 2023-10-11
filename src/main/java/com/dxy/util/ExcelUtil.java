@@ -1,5 +1,6 @@
 package com.dxy.util;
 
+import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.annotation.ExcelProperty;
@@ -10,6 +11,8 @@ import com.alibaba.excel.metadata.CellData;
 import com.alibaba.excel.metadata.CellExtra;
 import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.read.listener.ReadListener;
+import com.alibaba.excel.support.ExcelTypeEnum;
+import com.alibaba.excel.write.metadata.WriteSheet;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -212,6 +215,7 @@ public class ExcelUtil {
      * @param data     数据源
      */
     public static void writeWithTemplate(String filePath, List<? extends BaseRowModel> data) {
+//        writeWithTemplateAndSheet(filePath, data);
         writeWithTemplateAndSheet(filePath, data, null);
     }
 
@@ -253,6 +257,37 @@ public class ExcelUtil {
         }
 
     }
+
+    public static void writeWithTemplateAndSheet(String filePath, List<? extends BaseRowModel> data) {
+        if (CollectionUtils.isEmpty(data)) {
+            return;
+        }
+
+        OutputStream outputStream = null;
+        ExcelWriter writer = null;
+        try {
+            outputStream = new FileOutputStream(filePath);
+            writer = EasyExcel.write(new File(filePath), data.get(0).getClass()).excelType(ExcelTypeEnum.XLSX).build();
+            WriteSheet sheet = EasyExcel.writerSheet().registerWriteHandler(new CustomerTitleHandler()).build();
+            writer.write(data, sheet);
+        } catch (FileNotFoundException e) {
+            log.error("找不到文件或文件路径错误, 文件：{}", filePath);
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.finish();
+                }
+
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                log.error("excel文件导出失败, 失败原因：{}", e);
+            }
+        }
+
+    }
+
 
     /**
      * 生成多Sheet的excle

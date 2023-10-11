@@ -85,4 +85,8 @@ public class Product extends BaseRowModel {
     @ExcelProperty(value = "满两件折扣")
     @ColumnWidth(15)
     private String f18;
+
+    @ExcelProperty(value = "商品图片")
+    @ColumnWidth(15)
+    private String f19;
 }
