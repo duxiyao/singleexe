@@ -28,6 +28,7 @@ import java.util.*;
  * @date: 19-3-18 16:16
  * https://github.com/alibaba/easyexcel
  * https://www.yuque.com/easyexcel/doc/read#f14acd88
+ * https://easyexcel.opensource.alibaba.com/docs/current/quickstart/write#图片导出
  */
 @Slf4j
 public class ExcelUtil {
