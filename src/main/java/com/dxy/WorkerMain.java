@@ -34,7 +34,7 @@ public class WorkerMain {
         ones.add(new One(One.SHOP5, E));
 
         List<File> fileList = new ArrayList<>();
-        File workspace = new File("E:\\workspace");
+        File workspace = new File("D:\\tmp\\workspace");
         FileHelper.listOnlyFilesByOneDeep(workspace, fileList);
 
         fileList.forEach(file -> {

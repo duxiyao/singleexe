@@ -5,6 +5,8 @@ import com.dxy.util.ExcelUtil;
 import com.dxy.util.TypeUtil;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -133,7 +135,7 @@ public class One {
                 List<YXHD> by = bydms[0];
                 List<YXHD> dm = bydms[1];
 
-                Map<String, ERP> erpMap = erps.parallelStream().collect(Collectors.toMap(erp -> erp.getF6(), erp -> erp, (item1, item2) -> item1));
+                Map<String, ERP> erpMap = erps.parallelStream().collect(Collectors.toMap(erp -> erp.getF5(), erp -> erp, (item1, item2) -> item1));
                 Map<String, PanHuo> erpPanHuoMap = panHuos.parallelStream().collect(Collectors.toMap(panHuo -> panHuo.getF0(), panHuo -> panHuo, (item1, item2) -> item1));
                 Map<String, YXHD> byMap = by.parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
                 Map<String, YXHD> dmMap = dm.parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
@@ -154,31 +156,42 @@ public class One {
                         m.setF6(p.getF13());
                         m.setF7(p.getF14());
                         m.setF8(p.getF15());
-                        m.setF9(p.getF5());
+                        m.setF9(p.getF5() == null ? "-" : p.getF5());
                         m.setF10(p.getF8());
 
                         ERP erp = erpMap.get(p.getF1());
 
                         if (erp != null) {
-                            m.setF11(erp.getF8());
+                            m.setF11(erp.getF7());
                         }
-
                         if (p.getF19() != null) {
                             m.setF12("<table><img src=\"" + p.getF19() + "\" height=100 width=100></table>");
                         }
 
                         try {
                             PanHuo panHuo = erpPanHuoMap.get(m.getF11());
-                            m.setF13(panHuo.getF2());
-                            m.setF14(panHuo.getF1());
 
-                            m.setF20(panHuo.getF7());
-                            m.setF21(panHuo.getF5());
-                            m.setF22(panHuo.getF4());
-                            m.setF23(panHuo.getF9());
-                            m.setF24(panHuo.getF8());
-                            m.setF25(panHuo.getF6());
+                            if (panHuo != null) {
+                                m.setF13(panHuo.getF2());
+                                m.setF14(panHuo.getF1());
 
+                                m.setF20(panHuo.getF7());
+                                m.setF21(panHuo.getF5());
+                                m.setF22(panHuo.getF4());
+                                m.setF23(panHuo.getF9());
+                                m.setF24(panHuo.getF8());
+                                m.setF25(panHuo.getF6());
+                            } else {
+                                m.setF13("没匹配到");
+                                m.setF14("没匹配到");
+
+                                m.setF20("没匹配到");
+                                m.setF21("没匹配到");
+                                m.setF22("没匹配到");
+                                m.setF23("没匹配到");
+                                m.setF24("没匹配到");
+                                m.setF25("没匹配到");
+                            }
                         } catch (Exception e) {
 //                            if (WorkerMain.ISLOG) {
 //                                e.printStackTrace();
@@ -187,8 +200,10 @@ public class One {
 
                         try {
                             YXHD by = byMap.get(m.getF1());
-                            m.setF15(by.getF12());
-                            m.setF18(by.getF6());
+                            if (by != null) {
+                                m.setF15(by.getF12());
+                                m.setF18(by.getF6());
+                            }
                         } catch (Exception e) {
 //                            if (WorkerMain.ISLOG) {
 //                                e.printStackTrace();
@@ -197,8 +212,10 @@ public class One {
 
                         try {
                             YXHD dm = dmMap.get(m.getF1());
-                            m.setF16(dm.getF12());
-                            m.setF19(dm.getF6());
+                            if (dm != null) {
+                                m.setF16(dm.getF12());
+                                m.setF19(dm.getF6());
+                            }
                         } catch (Exception e) {
 //                            if (WorkerMain.ISLOG) {
 //                                e.printStackTrace();
