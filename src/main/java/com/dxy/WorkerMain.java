@@ -34,7 +34,7 @@ public class WorkerMain {
         ones.add(new One(One.SHOP5, E));
 
         List<File> fileList = new ArrayList<>();
-        File workspace = new File("D:\\tmp\\workspace");
+        File workspace = new File("E:\\workspace");
         FileHelper.listOnlyFilesByOneDeep(workspace, fileList);
 
         fileList.forEach(file -> {
@@ -99,6 +99,13 @@ public class WorkerMain {
                 }
             }
         });
+
+//        List<MData> tmp = new ArrayList<>();
+//        for (int i = 0; i < rets.size(); i++) {
+//            tmp.add(rets.get(i));
+//            if(i==5)
+//                break;
+//        }
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
         String outFilename = simpleDateFormat.format(new Date()) + "多多店铺商品资料.xlsx";

@@ -2,6 +2,7 @@ package com.dxy.data;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import com.alibaba.excel.converters.string.StringImageConverter;
 import com.alibaba.excel.metadata.BaseRowModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -59,7 +60,7 @@ public class MData extends BaseRowModel {
     private String f11;
 
     @ExcelProperty(value = "图片")
-//    @ColumnWidth(15)
+    @ColumnWidth(15)
     private String f12;
 
     @ExcelProperty(value = "成本")

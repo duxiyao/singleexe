@@ -166,6 +166,12 @@ public class One {
                         }
                         if (p.getF19() != null) {
                             m.setF12("<table><img src=\"" + p.getF19() + "\" height=100 width=100></table>");
+//                            m.setF12(p.getF19());
+//                            try {
+//                                m.setF12(new URL(p.getF19()));
+//                            } catch (MalformedURLException e) {
+//                                e.printStackTrace();
+//                            }
                         }
 
                         try {
