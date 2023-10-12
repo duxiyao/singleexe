@@ -24,7 +24,7 @@ public class WorkerMain {
             new LinkedBlockingQueue<>());
 
     public static void main(String[] args) throws IOException {
-
+        System.out.println(System.getProperty("user.dir"));
         //region
         List<One> ones = new ArrayList<>();
         ones.add(new One(One.SHOP1, E));
@@ -34,7 +34,7 @@ public class WorkerMain {
         ones.add(new One(One.SHOP5, E));
 
         List<File> fileList = new ArrayList<>();
-        File workspace = new File("E:\\workspace");
+        File workspace = new File(System.getProperty("user.dir"), "workspace");
         FileHelper.listOnlyFilesByOneDeep(workspace, fileList);
 
         fileList.forEach(file -> {
