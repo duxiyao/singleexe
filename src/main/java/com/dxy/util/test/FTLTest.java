@@ -23,8 +23,8 @@
 //        cfg.setDefaultEncoding("UTF-8");
 //        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 //
-//        String filePath = "E:\\workspace\\营销工具-新客立减-强人旗舰店-2023-10-09.xlsx";
-//        String clsName = "YXGJ";
+//        String filePath = "E:\\workspace\\销售报表输出格式xlsx.xlsx";
+//        String clsName = "XSBB";
 //        Map<String, Object> root = new HashMap<>();
 //        root.put("clsName", clsName);
 //        List<Map<String, Object>> datas = new ArrayList<Map<String, Object>>();

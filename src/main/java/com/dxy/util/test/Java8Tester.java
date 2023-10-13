@@ -10,9 +10,9 @@ public class Java8Tester {
 //        System.out.println("使用 Java 7: ");
 //
 //        // 计算空字符串
-//        List<String> strings = Arrays.asList("abc", "", "bc", "efg", "abcd", "", "jkl");
+        List<String> strings = Arrays.asList("abc", "", "bc", "efg", "abcd", "", "jkl");
 //        System.out.println("列表: " + strings);
-//        long count = getCountEmptyStringUsingJava7(strings);
+        long count = getCountEmptyStringUsingJava7(strings);
 //
 //        System.out.println("空字符数量为: " + count);
 //        count = getCountLength3UsingJava7(strings);
@@ -78,7 +78,7 @@ public class Java8Tester {
 //
 //        random.ints().limit(10).sorted().forEach(System.out::println);
 //
-//        // 并行处理
+        // 并行处理
 //        count = strings.parallelStream().filter(string -> string.isEmpty()).count();
 //        System.out.println("空字符串的数量为: " + count);
 
@@ -95,18 +95,23 @@ public class Java8Tester {
 //            System.out.println(num);
 //        });
 
-        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("M-d");
-        System.out.println(simpleDateFormat.format(new Date()));
-
-        List<String> strList = Arrays.asList("a", "ba", "bb", "abc", "cbb", "bba", "cab");
+//        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("M-d");
+//        System.out.println(simpleDateFormat.format(new Date()));
+//
+        List<String> strList = Arrays.asList("a", "ba", "bb", "abc", "cbb", "bba", "cab", "", "0", "0", "0");
         Map<Integer, String> strMap = new HashMap<Integer, String>();
 
         strMap = strList.parallelStream()
-                .collect( Collectors.toMap( str -> strList.indexOf(str), str -> str ) );
+                .filter(a->!a.isEmpty())
+                .collect(Collectors.toMap(str -> strList.indexOf(str), str -> str, (item1, item2) -> item1));
 
         strMap.forEach((key, value) -> {
-            System.out.println(key+"::"+value);
+            System.out.println(key + "::" + value);
         });
+
+
+//        List a = strings.parallelStream().filter(string -> !string.isEmpty()).collect(Collectors.toList());
+        String s = "";
     }
 
     private static int getCountEmptyStringUsingJava7(List<String> strings) {

@@ -165,7 +165,7 @@ public class One {
                             m.setF11(erp.getF7());
                         }
                         if (p.getF19() != null) {
-                            m.setF12("<table><img src=\"" + p.getF19() + "\" height=100 width=100></table>");
+                            m.setF12("<table><img src=\"" + p.getF19() + "\" height=45 width=45></table>");
 //                            m.setF12(p.getF19());
 //                            try {
 //                                m.setF12(new URL(p.getF19()));
