@@ -109,6 +109,7 @@ public class Java8Tester {
             System.out.println(key + "::" + value);
         });
 
+        Object o =strList.stream().collect(Collectors.toSet());
 
 //        List a = strings.parallelStream().filter(string -> !string.isEmpty()).collect(Collectors.toList());
         String s = "";
