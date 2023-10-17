@@ -15,6 +15,7 @@ import com.dxy.util.test.Java8GroupBy;
 import javafx.util.Pair;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 public class WorkerMain2 {
 
+    static DecimalFormat decimalFormat = new DecimalFormat("#.##");
     static final ExecutorService E = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors() * 2,
             60L, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>());
@@ -79,9 +81,9 @@ public class WorkerMain2 {
                     dingdans.forEach(dd1 -> ss.add(dd1));
                 });
                 IntSummaryStatistics statsCnt = ss.stream().mapToInt((x) -> TypeUtil.parseInt(x.getF9())).summaryStatistics();
-                IntSummaryStatistics statsPrice = ss.stream().mapToInt((x) -> TypeUtil.parseInt(x.getF8())).summaryStatistics();
+                DoubleSummaryStatistics statsPrice = ss.stream().mapToDouble((x) -> TypeUtil.parseDouble(x.getF8())).summaryStatistics();
 
-                m.put(s, new Pair<Long, Long>(statsPrice.getSum(), statsCnt.getSum()));
+                m.put(s, new Pair<Double, Long>(statsPrice.getSum(), statsCnt.getSum()));
             });
 
 
@@ -101,11 +103,11 @@ public class WorkerMain2 {
                 return flag;
             }).collect(Collectors.toList());
             newList.forEach(xsbb -> {
-                Pair<Long, Long> p =  m.get(xsbb.getF9());
+                Pair<Double, Long> p =  m.get(xsbb.getF9());
                 try {
                     xsbb.setF3(xsbb.getF9());
-                    xsbb.setF13(p.getValue().toString());
-                    xsbb.setF14(p.getKey().toString());
+                    xsbb.setF13(decimalFormat.format(p.getValue()));
+                    xsbb.setF14(decimalFormat.format(p.getKey()));
                     //todo
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -124,10 +126,12 @@ public class WorkerMain2 {
 //        m.keySet().stream().forEach(s -> {
 //            A a = new A();
 //            a.setF0(s);
-//            Pair<Long, Long> p = m.get(s);
+//            Pair<Double, Long> p = m.get(s);
 //            try {
-//                a.setF1(p.getKey().toString());
-//                a.setF2(p.getValue().toString());
+//                a.setF1(decimalFormat.format(p.getKey()));
+//                a.setF2(decimalFormat.format(p.getValue()));
+////                a.setF1(p.getKey().toString());
+////                a.setF2(p.getValue().toString());
 //                rets.add(a);
 //            } catch (Exception e) {
 //                e.printStackTrace();
@@ -137,8 +141,8 @@ public class WorkerMain2 {
 
         E.shutdown();
 
-        List<XSBB> rets = new ArrayList<>();
-        rets.addAll(futureTask2.get());
+//        List<XSBB> rets = new ArrayList<>();
+//        rets.addAll(futureTask2.get());
 //        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
 //        String outFilename = simpleDateFormat.format(new Date()) + "aa.xlsx";
 //        File outfp = new File(workspace, outFilename);

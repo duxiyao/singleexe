@@ -11,6 +11,14 @@ public class TypeUtil {
         return 0;
     }
 
+    public static float parseFloat(String o) {
+        try {
+            return Float.parseFloat(o);
+        } catch (Exception e) {
+        }
+        return 0;
+    }
+
     public static double parseDouble(String o) {
         try {
             return Double.parseDouble(o);
