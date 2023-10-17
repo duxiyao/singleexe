@@ -139,7 +139,7 @@ public class One {
                 Map<String, PanHuo> erpPanHuoMap = panHuos.parallelStream().collect(Collectors.toMap(panHuo -> panHuo.getF0(), panHuo -> panHuo, (item1, item2) -> item1));
                 Map<String, YXHD> byMap = by.parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
                 Map<String, YXHD> dmMap = dm.parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
-                Map<String, YXGJ> gjMap = yxgjs.parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
+                Map<String, YXGJ> gjMap = yxgjs.parallelStream().collect(Collectors.toMap(a -> a.getF1(), a -> a, (item1, item2) -> item1));
 
 
                 o = products.parallelStream().map(new Function<Product, MData>() {

@@ -35,6 +35,7 @@ public class WorkerMain {
 
         List<File> fileList = new ArrayList<>();
         File workspace = new File(System.getProperty("user.dir"), "workspace");
+//        File workspace = new File("e:\\1\\", "workspace");
         FileHelper.listOnlyFilesByOneDeep(workspace, fileList);
 
         fileList.forEach(file -> {
