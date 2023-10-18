@@ -42,26 +42,130 @@
 
     <build>
         <plugins>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-shade-plugin</artifactId>-->
+<!--                <version>3.2.4</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>shade</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <transformers>-->
+<!--                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
+<!--                                    <mainClass>com.dxy.WorkerMain</mainClass>-->
+<!--                                </transformer>-->
+<!--                            </transformers>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+
+            <!-- ProGuard混淆插件-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/log4j.properties</exclude>
+                    </excludes>
+                    <archive>
+                        <!-- 包里面是否包含pom.xml文件和pom.properties文件 -->
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.dxy.WorkerMain2</mainClass>
+                            <classpathPrefix>lib/</classpathPrefix>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.5.1</version>
                 <executions>
                     <execution>
+                        <id>copy-dependencies</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.dxy.WorkerMain</mainClass>
-                                </transformer>
-                            </transformers>
+                            <!--  exclude junit, we need runtime dependency only -->
+                            <includeScope>runtime</includeScope>
+                            <outputDirectory>${project.build.directory}/lib/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <version>2.3.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <attach>true</attach>
+                    <attachArtifactClassifier>pg</attachArtifactClassifier>
+                    <!-- attach 的作用是在 install 与 deploy 时将生成的 pg 文件也安装与部署 -->
+                    <options> <!-- 详细配置方式参考 ProGuard 官方文档 -->
+                        <!--<option>-dontobfuscate</option>-->
+                        <option>-ignorewarnings</option> <!--忽略所有告警-->
+                        <option>-dontshrink</option>   <!--不做 shrink -->
+                        <option>-dontoptimize</option> <!--不做 optimize -->
+                        <option>-dontskipnonpubliclibraryclasses</option>
+                        <option>-dontskipnonpubliclibraryclassmembers</option>
+
+                        <!--平行包结构（重构包层次），所有混淆的类放在 pg 包下-->
+
+                        <!-- 以下为 Keep，哪些内容保持不变，因为有一些内容混淆后（a,b,c）导致反射或按类名字符串相关的操作失效 -->
+
+                        <option>-keep class **.package-info</option>
+<!--                        <option>-keep class **.TestClass { *;}</option>-->
+                        <!--保持包注解类-->
+
+                        <option>-keepattributes Signature</option>
+                        <!--JAXB NEED，具体原因不明，不加会导致 JAXB 出异常，如果不使用 JAXB 根据需要修改-->
+                        <!-- Jaxb requires generics to be available to perform xml parsing and without this option ProGuard was not retaining that information after obfuscation. That was causing the exception above. -->
+
+                        <option>-keepattributes SourceFile,LineNumberTable,*Annotation*</option>
+                        <!--保持源码名与行号（异常时有明确的栈信息），注解（默认会过滤掉所有注解，会影响框架的注解）-->
+<!--                        -->
+<!--                        <option>-repackageclasses com.lwf.proguard.example.project2.pg</option>-->
+
+<!--                        <option>-keepclassmembers enum com.lwf.proguard.example.project2.** { *;}</option>-->
+<!--                        &lt;!&ndash;保持枚举中的名子，确保枚举 valueOf 可以使用&ndash;&gt;-->
+
+<!--                        <option>-keep class com.lwf.proguard.example.project2.bean.** { *;}</option>-->
+<!--                        &lt;!&ndash;保持 Bean 类，（由于很多框架会对 Bean 中的内容做反射处理，请根据自己的业务调整） &ndash;&gt;-->
+
+<!--                        <option>-keep class com.lwf.proguard.example.project2.Project2 { public void init(); public void-->
+<!--                            destroy(); }-->
+<!--                        </option>-->
+                        <!-- 保持对外的接口性质类对外的类名与方法名不变 -->
+
+<!--                        <option>-keepclasseswithmembers public class * { public static void main(java.lang.String[]);}</option>-->
+                    </options>
+                    <outjar>${project.build.finalName}-pg</outjar>
+                    <libs>
+                        <lib>${java.home}/lib/rt.jar</lib>
+                    </libs>
+
+<!--                    <injar>${project.build.finalName}.jar</injar>-->
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>

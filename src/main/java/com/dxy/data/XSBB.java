@@ -3,6 +3,7 @@ package com.dxy.data;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.alibaba.excel.metadata.BaseRowModel;
+import com.dxy.util.TypeUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -185,4 +186,8 @@ public class XSBB extends BaseRowModel {
     @ExcelProperty(value = "满两件折扣")
     @ColumnWidth(15)
     private String f43;
+
+    public double getDoubleF14() {
+        return TypeUtil.parseDouble(getF14());
+    }
 }
