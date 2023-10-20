@@ -27,7 +27,7 @@ public class Tasks {
     static boolean canUse = true;
 
     static DecimalFormat decimalFormat = new DecimalFormat("#.##");
-    static final ExecutorService E = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors() * 2,
+    public static final ExecutorService E = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors() * 2,
             60L, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>());
 
@@ -216,7 +216,7 @@ public class Tasks {
             } catch (Exception e) {
             }
         });
-        E.shutdown();
+//        E.shutdown();
 
         bb = null;
         dd = null;
@@ -320,7 +320,7 @@ public class Tasks {
             } catch (Exception e) {
             }
         });
-        E.shutdownNow();
+//        E.shutdownNow();
         filePanhuo = null;
         fileERP = null;
         canUse = true;

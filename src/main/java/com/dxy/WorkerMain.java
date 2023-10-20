@@ -44,6 +44,7 @@ public class WorkerMain {
                     }
                     if ("q".equals(s)) {
                         flag = false;
+                        Tasks.E.shutdownNow();
                     }
 
                     System.err.println();
