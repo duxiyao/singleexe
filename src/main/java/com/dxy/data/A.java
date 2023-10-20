@@ -10,15 +10,15 @@ import lombok.EqualsAndHashCode;
 @Data
 public class A  extends BaseRowModel {
 
-    @ExcelProperty(value = "a")
+    @ExcelProperty(value = "店铺款式编码")
     @ColumnWidth(15)
     private String f0;
 
-    @ExcelProperty(value = "b")
+    @ExcelProperty(value = "已付金额")
     @ColumnWidth(15)
     private String f1;
 
-    @ExcelProperty(value = "c")
+    @ExcelProperty(value = "数量")
     @ColumnWidth(15)
     private String f2;
 }

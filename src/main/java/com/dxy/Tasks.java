@@ -115,6 +115,29 @@ public class Tasks {
             System.out.println(bb.getName() + "的数据读取完毕");
 
             Map<String, Pair> m = futureTask1.get();
+
+            //region 草稿
+            List<A> caogao = new ArrayList<>();
+            m.keySet().stream().forEach(s -> {
+                A a = new A();
+                a.setF0(s);
+                Pair<Double, Long> p = m.get(s);
+                try {
+                    a.setF1(decimalFormat.format(p.getKey()));
+                    a.setF2(decimalFormat.format(p.getValue()));
+//                a.setF1(p.getKey().toString());
+//                a.setF2(p.getValue().toString());
+                    caogao.add(a);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
+            String outFilename = simpleDateFormat.format(new Date()) + "草稿.xlsx";
+            File outfp = new File(workspace, outFilename);
+            ExcelUtil.writeWithTemplate(outfp.getAbsolutePath(), caogao);
+            //endregion 草稿
+
             List<XSBB> newList = list.parallelStream().filter(xsbb -> {
                 boolean flag = m.containsKey(xsbb.getF9());
                 return flag;
@@ -142,23 +165,6 @@ public class Tasks {
         E.submit(futureTask);
         E.submit(futureTask1);
         E.submit(futureTask2);
-
-//        List<A> rets = new ArrayList<>();
-//        Map<String, Pair> m = futureTask1.get();
-//        m.keySet().stream().forEach(s -> {
-//            A a = new A();
-//            a.setF0(s);
-//            Pair<Double, Long> p = m.get(s);
-//            try {
-//                a.setF1(decimalFormat.format(p.getKey()));
-//                a.setF2(decimalFormat.format(p.getValue()));
-////                a.setF1(p.getKey().toString());
-////                a.setF2(p.getValue().toString());
-//                rets.add(a);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        });
 
 
         List<XSBB> rets = new ArrayList<>();
