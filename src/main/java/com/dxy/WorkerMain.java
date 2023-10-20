@@ -1,118 +1,72 @@
 package com.dxy;
 
-import com.dxy.data.ERP;
-import com.dxy.data.MData;
-import com.dxy.data.PanHuo;
-import com.dxy.util.ExcelUtil;
-import com.dxy.util.FileHelper;
+import com.dxy.util.VersionCtlUtil;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.*;
+import java.util.Scanner;
 
 public class WorkerMain {
-    public static boolean ISLOG = true;
-    static File filePanhuo = null;
-    static File fileERP = null;
-    static boolean canUse = true;
-    static final ExecutorService E = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors() * 2,
-            60L, TimeUnit.SECONDS,
-            new LinkedBlockingQueue<>());
+//    static final ExecutorService E = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors() * 2,
+//            60L, TimeUnit.SECONDS,
+//            new LinkedBlockingQueue<>());
 
-    public static void main(String[] args) throws IOException {
-        System.out.println(System.getProperty("user.dir"));
-        //region
-        List<One> ones = new ArrayList<>();
-        ones.add(new One(One.SHOP1, E));
-        ones.add(new One(One.SHOP2, E));
-        ones.add(new One(One.SHOP3, E));
-        ones.add(new One(One.SHOP4, E));
-        ones.add(new One(One.SHOP5, E));
-
-        List<File> fileList = new ArrayList<>();
-        File workspace = new File(System.getProperty("user.dir"), "workspace");
-//        File workspace = new File("e:\\1\\", "workspace");
-        FileHelper.listOnlyFilesByOneDeep(workspace, fileList);
-
-        fileList.forEach(file -> {
-            String fn = file.getName();
-            if (fn.contains(One.PH)) {
-                filePanhuo = file;
-            } else if (fn.contains(One.ERP)) {
-                fileERP = file;
-            } else {
-                ones.forEach(a -> {
-                    a.filter(file);
-                });
+    public static void main(String[] args) {
+        Scanner scan = null;
+        try {
+            try {
+                VersionCtlUtil.up("");
+            } catch (Exception e) {
             }
-        });
 
-        ones.forEach(a -> {
-            if (!a.canUse()) {
-                canUse = false;
+            scan = new Scanner(System.in);
+            boolean flag = true;
+            while (flag) {
+                System.out.println();
+                System.out.println("请将对应要处理的数据文件，放入对应的workerspace1 或 workerspace2 中.");
+                System.out.println("请选择要执行的功能，并敲回车确定：");
+                System.out.println("1：处理【多多店铺商品资料】");
+                System.out.println("2：处理【销售报表】");
+                System.out.println("q：退出程序");
+                System.out.println("请输入：");
+                if (scan.hasNext()) {
+                    String s = scan.next();
+
+                    if ("1".equals(s)) {
+                        VersionCtlUtil.test("1");
+                        Tasks.exe1();
+                        System.err.println("1：【多多店铺商品资料】 处理完成");
+                    }
+                    if ("2".equals(s)) {
+                        VersionCtlUtil.test("2");
+                        Tasks.exe2();
+                        System.err.println("2：【销售报表】 处理完成");
+                    }
+                    if ("q".equals(s)) {
+                        flag = false;
+                    }
+
+                    System.err.println();
+                    System.err.println();
+                    System.err.println();
+                    System.err.println("电脑要爆炸了！！！！！！！");
+                    Thread.sleep(1000);
+                    System.out.println(3);
+                    Thread.sleep(1000);
+                    System.out.println(2);
+                    Thread.sleep(1000);
+                    System.out.println(1);
+                    System.out.println("逗你玩~");
+                    System.out.println();
+                    System.out.println();
+                    System.out.println();
+                }
             }
-        });
-        if (!canUse || filePanhuo == null || fileERP == null) {
-            System.out.println("文件不全，请检查无误后继续");
-            return;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (scan != null) {
+                scan.close();
+            }
         }
-        //endregion
 
-        FutureTask<List<PanHuo>> futureTask = new FutureTask<>(() -> {
-            System.out.println("开始读取" + One.PH + "的数据");
-            List<PanHuo> list = ExcelUtil.read(filePanhuo.getAbsolutePath(), PanHuo.class);
-            System.out.println(One.PH + "的数据读取完毕");
-            return list;
-        });
-        FutureTask<List<ERP>> ferp = new FutureTask<>(() -> {
-            System.out.println("开始读取" + One.ERP + "的数据");
-            List<ERP> list = ExcelUtil.read(fileERP.getAbsolutePath(), ERP.class);
-            System.out.println(One.ERP + "的数据读取完毕");
-            return list;
-        });
-
-        E.submit(futureTask);
-        E.submit(ferp);
-
-        List<Future<List<MData>>> list = new ArrayList<>();
-        ones.forEach(a -> {
-            try {
-                a.read();
-                list.add(a.get(futureTask.get(), ferp.get()));
-            } catch (Exception e) {
-                if (WorkerMain.ISLOG) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        List<MData> rets = new ArrayList<>();
-        list.forEach(listFuture -> {
-            try {
-                rets.addAll(listFuture.get());
-            } catch (Exception e) {
-                if (WorkerMain.ISLOG) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-//        List<MData> tmp = new ArrayList<>();
-//        for (int i = 0; i < rets.size(); i++) {
-//            tmp.add(rets.get(i));
-//            if(i==5)
-//                break;
-//        }
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
-        String outFilename = simpleDateFormat.format(new Date()) + "多多店铺商品资料.xlsx";
-        File outfp = new File(workspace, outFilename);
-        ExcelUtil.writeWithTemplate(outfp.getAbsolutePath(), rets);
-        E.shutdownNow();
-        System.out.println("end");
     }
 }

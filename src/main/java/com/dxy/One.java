@@ -15,6 +15,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.dxy.Tasks.ISLOG;
+
 public class One {
     public static final String PH = "盘货表";
     public static final String ERP = "ERP";
@@ -93,7 +95,7 @@ public class One {
                             }
                         }
                     } catch (Exception e) {
-                        if (WorkerMain.ISLOG) {
+                        if (ISLOG) {
                             e.printStackTrace();
                         }
                     }
@@ -105,7 +107,7 @@ public class One {
                             }
                         }
                     } catch (Exception e) {
-                        if (WorkerMain.ISLOG) {
+                        if (ISLOG) {
                             e.printStackTrace();
                         }
                     }
@@ -260,7 +262,7 @@ public class One {
                 }).collect(Collectors.toList());
 
             } catch (Exception e) {
-                if (WorkerMain.ISLOG) {
+                if (ISLOG) {
                     e.printStackTrace();
                 }
             }
