@@ -13,6 +13,8 @@ public class WorkerMain {
         Scanner scan = null;
         try {
             try {
+                VersionCtlUtil.test("1");
+                VersionCtlUtil.test("2");
                 VersionCtlUtil.up("");
             } catch (Exception e) {
             }
