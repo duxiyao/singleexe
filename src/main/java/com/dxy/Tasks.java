@@ -75,7 +75,7 @@ public class Tasks {
         FutureTask<Map<String, Pair>> futureTask1 = new FutureTask<>(() -> {
             List<DINGDAN> list = futureTask.get();
             Map<String, List<DINGDAN>> mDingdanhao = list.parallelStream().collect(Collectors.groupingBy(DINGDAN::getF4));
-            mDingdanhao.keySet().parallelStream().forEach(s -> {
+            mDingdanhao.keySet().stream().forEach(s -> {
                 List<DINGDAN> l = mDingdanhao.get(s);
                 for (int i = 0; i < l.size(); i++) {
                     if (i > 0) {
@@ -92,14 +92,14 @@ public class Tasks {
             Map<String, Pair> m = new HashMap<>();
             Map<String, Map<String, List<DINGDAN>>> mgroup = list.parallelStream()
                     .collect(Collectors.groupingBy(DINGDAN::getF5, Collectors.groupingBy(DINGDAN::getF1)));
-            mgroup.keySet().parallelStream().forEach(s -> {
+            mgroup.keySet().stream().forEach(s -> {
                 Map<String, List<DINGDAN>> mstatus = mgroup.get(s);
                 List<DINGDAN> ss = new ArrayList<>();
                 mstatus.values().forEach(dingdans -> {
                     dingdans.forEach(dd1 -> ss.add(dd1));
                 });
-                IntSummaryStatistics statsCnt = ss.stream().mapToInt((x) -> TypeUtil.parseInt(x.getF9())).summaryStatistics();
-                DoubleSummaryStatistics statsPrice = ss.stream().mapToDouble((x) -> TypeUtil.parseDouble(x.getF8())).summaryStatistics();
+                IntSummaryStatistics statsCnt = ss.parallelStream().mapToInt((x) -> TypeUtil.parseInt(x.getF9())).summaryStatistics();
+                DoubleSummaryStatistics statsPrice = ss.parallelStream().mapToDouble((x) -> TypeUtil.parseDouble(x.getF8())).summaryStatistics();
 
                 m.put(s, new Pair<Double, Long>(statsPrice.getSum(), statsCnt.getSum()));
             });
