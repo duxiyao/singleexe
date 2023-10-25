@@ -15,6 +15,8 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Tasks {
@@ -27,6 +29,7 @@ public class Tasks {
     static boolean canUse = true;
 
     static DecimalFormat decimalFormat = new DecimalFormat("#.##");
+    static DecimalFormat decimalFormat4 = new DecimalFormat("#.####");
     public static final ExecutorService E = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors() * 2,
             60L, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>());
@@ -35,6 +38,7 @@ public class Tasks {
 
         List<File> fileList = new ArrayList<>();
         File workspace = new File(System.getProperty("user.dir"), "workspace2");
+//        File workspace = new File("E:/", "workspace");
         FileHelper.listOnlyFilesByOneDeep(workspace, fileList);
         fileList.forEach(file -> {
             String fn = file.getName();
@@ -51,13 +55,73 @@ public class Tasks {
         }
 
 
-//        File dd = new File(workspace, "订单_2023-10-12_11-08-40.10291624.10825900_1(1).xlsx");
+//        dd = new File(workspace, "订单_2023-10-20_09-00-03.10291624.10825900_1更改 (1).xlsx");
         FutureTask<List<DINGDAN>> futureTask = new FutureTask<>(() -> {
             System.out.println("开始读取" + dd.getName() + "的数据");
             List<DINGDAN> list = ExcelUtil.read(dd.getAbsolutePath(), DINGDAN.class);
             list = list.parallelStream().filter(dingdan -> {
                 try {
-                    boolean flag = dingdan.getF5() == null || dingdan.getF5().isEmpty() || (dingdan.getF1() != null && dingdan.getF1().contains("成功退款"));
+                    boolean flag = dingdan.getF5() == null || dingdan.getF5().isEmpty();
+                    if (flag) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }).collect(Collectors.toList());
+
+            //region 统计
+            try {
+                Map<String, List<DINGDAN>> mgroup = list.parallelStream()
+                        .collect(Collectors.groupingBy(DINGDAN::getF1));
+                Map<String, Double> mss = new HashMap<>();
+                double sum = 0;
+                for (String s : mgroup.keySet()) {
+                    List<DINGDAN> ss = mgroup.get(s);
+                    DoubleSummaryStatistics statsPrice = ss.parallelStream().mapToDouble((x) -> TypeUtil.parseDouble(x.getF8())).summaryStatistics();
+                    mss.put(s, Double.parseDouble(decimalFormat.format(statsPrice.getSum())));
+                    sum += statsPrice.getSum();
+                }
+                sum = Double.parseDouble(decimalFormat.format(sum));
+                double finalSum = sum;
+                Map<String, String> ssRet = mss.entrySet().stream().map(new Function<Map.Entry<String, Double>, Map.Entry<String, Double>>() {
+                    @Override
+                    public Map.Entry<String, Double> apply(Map.Entry<String, Double> stringDoubleEntry) {
+                        String k = stringDoubleEntry.getKey();
+                        Double d = stringDoubleEntry.getValue();
+                        stringDoubleEntry.setValue(d / finalSum);
+                        return stringDoubleEntry;
+                    }
+                }).collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        stringDoubleEntry -> decimalFormat4.format(100f * stringDoubleEntry.getValue()) + "%",
+                        (oldVal, newVal) -> oldVal,
+                        LinkedHashMap::new));
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("============\r\n");
+                ssRet.entrySet().stream().forEach(new Consumer<Map.Entry<String, String>>() {
+                    @Override
+                    public void accept(Map.Entry<String, String> stringStringEntry) {
+                        sb.append(stringStringEntry.getKey() + "\t" + stringStringEntry.getValue() + "\r\n");
+                    }
+                });
+
+                sb.append("总计：" + decimalFormat.format(sum));
+                sb.append("\r\n============\r\n");
+                System.err.println(sb);
+                String s = "";
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            //endregion
+
+            list = list.parallelStream().filter(dingdan -> {
+                try {
+                    boolean flag = (dingdan.getF1() != null && dingdan.getF1().contains("成功退款"));
                     if (flag) {
                         return false;
                     } else {
@@ -103,7 +167,6 @@ public class Tasks {
 
                 m.put(s, new Pair<Double, Long>(statsPrice.getSum(), statsCnt.getSum()));
             });
-
 
             return m;
         });
@@ -170,7 +233,14 @@ public class Tasks {
         List<XSBB> rets = new ArrayList<>();
         rets.addAll(futureTask2.get());
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
-        String outFilename = simpleDateFormat.format(new Date()) + "销售报表输出.xlsx";
+
+//        Calendar cal = Calendar.getInstance();
+//        cal.add(Calendar.DATE, -1);
+//        Date d = cal.getTime();
+
+        Date d = new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24);
+
+        String outFilename = simpleDateFormat.format(d) + "销售报表输出.xlsx";
         File outfp = new File(workspace, outFilename);
 //        ExcelUtil.writeWithTemplate(outfp.getAbsolutePath(), rets);
 
