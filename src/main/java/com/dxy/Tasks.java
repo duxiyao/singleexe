@@ -62,6 +62,13 @@ public class Tasks {
             list = list.parallelStream().filter(dingdan -> {
                 try {
                     boolean flag = dingdan.getF5() == null || dingdan.getF5().isEmpty();
+                    if (dingdan.getF8() != null) {
+                        try {
+                            dingdan.setF8(decimalFormat.format(TypeUtil.parseDouble(dingdan.getF8())));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                     if (flag) {
                         return false;
                     } else {
@@ -106,7 +113,7 @@ public class Tasks {
                 ssRet.entrySet().stream().forEach(new Consumer<Map.Entry<String, String>>() {
                     @Override
                     public void accept(Map.Entry<String, String> stringStringEntry) {
-                        sb.append(stringStringEntry.getKey() + "\t" + stringStringEntry.getValue() + "\r\n");
+                        sb.append(stringStringEntry.getKey() + "\t" + mss.get(stringStringEntry.getKey()) + "\t" + stringStringEntry.getValue() + "\r\n");
                     }
                 });
 
