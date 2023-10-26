@@ -85,11 +85,13 @@ public class Tasks {
                 Map<String, List<DINGDAN>> mgroup = list.parallelStream()
                         .collect(Collectors.groupingBy(DINGDAN::getF1));
                 Map<String, Double> mss = new HashMap<>();
+                Map<String, Double> mprice = new HashMap<>();
                 double sum = 0;
                 for (String s : mgroup.keySet()) {
                     List<DINGDAN> ss = mgroup.get(s);
                     DoubleSummaryStatistics statsPrice = ss.parallelStream().mapToDouble((x) -> TypeUtil.parseDouble(x.getF8())).summaryStatistics();
                     mss.put(s, Double.parseDouble(decimalFormat.format(statsPrice.getSum())));
+                    mprice.put(s, Double.parseDouble(decimalFormat.format(statsPrice.getSum())));
                     sum += statsPrice.getSum();
                 }
                 sum = Double.parseDouble(decimalFormat.format(sum));
@@ -113,7 +115,7 @@ public class Tasks {
                 ssRet.entrySet().stream().forEach(new Consumer<Map.Entry<String, String>>() {
                     @Override
                     public void accept(Map.Entry<String, String> stringStringEntry) {
-                        sb.append(stringStringEntry.getKey() + "\t" + mss.get(stringStringEntry.getKey()) + "\t" + stringStringEntry.getValue() + "\r\n");
+                        sb.append(stringStringEntry.getKey() + "\t" + mprice.get(stringStringEntry.getKey()) + "\t" + stringStringEntry.getValue() + "\r\n");
                     }
                 });
 
