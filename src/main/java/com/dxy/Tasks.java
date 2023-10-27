@@ -80,6 +80,42 @@ public class Tasks {
                 return true;
             }).collect(Collectors.toList());
 
+
+//            list = list.parallelStream().filter(dingdan -> {
+//                try {
+//                    boolean flag = (dingdan.getF1() != null && dingdan.getF1().contains("成功退款"));
+//                    if (flag) {
+//                        return false;
+//                    } else {
+//                        return true;
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                return true;
+//            }).collect(Collectors.toList());
+            System.out.println(dd.getName() + "的数据读取完毕");
+            return list;
+        });
+
+        FutureTask<Map<String, Pair>> futureTask1 = new FutureTask<>(() -> {
+            List<DINGDAN> list = futureTask.get();
+            Map<String, List<DINGDAN>> mDingdanhao = list.parallelStream().collect(Collectors.groupingBy(DINGDAN::getF4));
+            mDingdanhao.keySet().stream().forEach(s -> {
+                List<DINGDAN> l = mDingdanhao.get(s);
+                for (int i = 0; i < l.size(); i++) {
+                    if (i > 0) {
+                        l.get(i).setF8("0");
+                    }
+                }
+            });
+//            list.forEach(new Consumer<DINGDAN>() {
+//                @Override
+//                public void accept(DINGDAN dd1) {
+//                    String s = "";
+//                }
+//            });
+
             //region 统计
             try {
                 Map<String, List<DINGDAN>> mgroup = list.parallelStream()
@@ -128,40 +164,6 @@ public class Tasks {
             }
             //endregion
 
-            list = list.parallelStream().filter(dingdan -> {
-                try {
-                    boolean flag = (dingdan.getF1() != null && dingdan.getF1().contains("成功退款"));
-                    if (flag) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return true;
-            }).collect(Collectors.toList());
-            System.out.println(dd.getName() + "的数据读取完毕");
-            return list;
-        });
-
-        FutureTask<Map<String, Pair>> futureTask1 = new FutureTask<>(() -> {
-            List<DINGDAN> list = futureTask.get();
-            Map<String, List<DINGDAN>> mDingdanhao = list.parallelStream().collect(Collectors.groupingBy(DINGDAN::getF4));
-            mDingdanhao.keySet().stream().forEach(s -> {
-                List<DINGDAN> l = mDingdanhao.get(s);
-                for (int i = 0; i < l.size(); i++) {
-                    if (i > 0) {
-                        l.get(i).setF8("0");
-                    }
-                }
-            });
-//            list.forEach(new Consumer<DINGDAN>() {
-//                @Override
-//                public void accept(DINGDAN dd1) {
-//                    String s = "";
-//                }
-//            });
             Map<String, Pair> m = new HashMap<>();
             Map<String, Map<String, List<DINGDAN>>> mgroup = list.parallelStream()
                     .collect(Collectors.groupingBy(DINGDAN::getF5, Collectors.groupingBy(DINGDAN::getF1)));
@@ -169,7 +171,12 @@ public class Tasks {
                 Map<String, List<DINGDAN>> mstatus = mgroup.get(s);
                 List<DINGDAN> ss = new ArrayList<>();
                 mstatus.values().forEach(dingdans -> {
-                    dingdans.forEach(dd1 -> ss.add(dd1));
+                    dingdans.forEach(dd1 -> {
+                        boolean flag = (dd1.getF1() != null && dd1.getF1().contains("成功退款"));
+                        if (!flag) {
+                            ss.add(dd1);
+                        }
+                    });
                 });
                 IntSummaryStatistics statsCnt = ss.parallelStream().mapToInt((x) -> TypeUtil.parseInt(x.getF9())).summaryStatistics();
                 DoubleSummaryStatistics statsPrice = ss.parallelStream().mapToDouble((x) -> TypeUtil.parseDouble(x.getF8())).summaryStatistics();
