@@ -117,7 +117,7 @@ public class MData extends BaseRowModel {
 
     @ExcelProperty(value = "新客立减(元)")
     @ColumnWidth(15)
-    private String f26 = "/";
+    private String f26 = "0";
 
     @ExcelProperty(value = "类目名称")
     @ColumnWidth(15)

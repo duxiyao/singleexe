@@ -172,7 +172,7 @@ public class Tasks {
                 List<DINGDAN> ss = new ArrayList<>();
                 mstatus.values().forEach(dingdans -> {
                     dingdans.forEach(dd1 -> {
-                        boolean flag = (dd1.getF1() != null && dd1.getF1().contains("成功退款"));
+                        boolean flag = (dd1.getF1() != null && (dd1.getF1().contains("成功退款") || dd1.getF1().contains("等待退款")));
                         if (!flag) {
                             ss.add(dd1);
                         }
