@@ -225,13 +225,22 @@ public class Tasks {
                 Pair<Double, Long> p = m.get(xsbb.getF9());
                 try {
                     xsbb.setF3(xsbb.getF9());
-                    xsbb.setF13(decimalFormat.format(p.getValue()));
-                    xsbb.setF14(decimalFormat.format(p.getKey()));
+                    if (p.getValue() != 0) {
+                        xsbb.setF13(decimalFormat.format(p.getValue()));
+                    }
+                    if (p.getKey() != 0) {
+                        xsbb.setF14(decimalFormat.format(p.getKey()));
+                    }
                     xsbb.setF15(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF13()) * TypeUtil.parseFloat(xsbb.getF21())));
                     xsbb.setF16(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF14()) - TypeUtil.parseFloat(xsbb.getF15())));
-                    xsbb.setF17(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF16()) / TypeUtil.parseFloat(xsbb.getF13())));
-                    xsbb.setF18(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF14()) / TypeUtil.parseFloat(xsbb.getF13())));
-                    xsbb.setF19(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF16()) / TypeUtil.parseFloat(xsbb.getF14())));
+
+                    if (p.getValue() != 0) {
+                        xsbb.setF17(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF16()) / TypeUtil.parseFloat(xsbb.getF13())));
+                        xsbb.setF18(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF14()) / TypeUtil.parseFloat(xsbb.getF13())));
+                    }
+                    if (p.getKey() != 0) {
+                        xsbb.setF19(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF16()) / TypeUtil.parseFloat(xsbb.getF14())));
+                    }
                     xsbb.setF20(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF18()) - TypeUtil.parseFloat(xsbb.getF8())));
                 } catch (Exception e) {
                     e.printStackTrace();
