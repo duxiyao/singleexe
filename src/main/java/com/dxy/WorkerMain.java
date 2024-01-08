@@ -27,6 +27,7 @@ public class WorkerMain {
                 System.out.println("请选择要执行的功能，并敲回车确定：");
                 System.out.println("1：处理【多多店铺商品资料】");
                 System.out.println("2：处理【销售报表】");
+                System.out.println("3：处理【销售报表加上推广数据】");
                 System.out.println("q：退出程序");
                 System.out.println("请输入：");
                 if (scan.hasNext()) {
@@ -41,6 +42,11 @@ public class WorkerMain {
                         VersionCtlUtil.test("2");
                         Tasks.exe2();
                         System.err.println("2：【销售报表】 处理完成");
+                    }
+                    if ("3".equals(s)) {
+                        VersionCtlUtil.test("3");
+                        Tasks.exe3();
+                        System.err.println("3：【销售报表加上推广数据】 处理完成");
                     }
                     if ("q".equals(s)) {
                         flag = false;

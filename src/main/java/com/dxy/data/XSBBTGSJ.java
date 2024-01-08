@@ -1,7 +1,9 @@
 package com.dxy.data;
 
+//销售报表输出加上推广数据模板
+//全站总花费(元)	全站实际投产比	全站成交笔数	全站每笔成交花费(元)	全站每笔成交金额(元)	全站直接成交笔数	全站间接成交笔数	标准总花费(元)	标准实际投产比	标准成交笔数	标准每笔成交花费(元)	标准直接成交笔数	标准间接成交笔数	标准每笔成交金额(元)
+
 import com.alibaba.excel.annotation.ExcelIgnore;
-import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.alibaba.excel.metadata.BaseRowModel;
@@ -9,10 +11,10 @@ import com.dxy.util.TypeUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class XSBB extends BaseRowModel {
+public class XSBBTGSJ extends BaseRowModel {
+
 
     @ExcelProperty(value = "商品名称")
     @ColumnWidth(15)
@@ -97,6 +99,49 @@ public class XSBB extends BaseRowModel {
     @ExcelProperty(value = "客单价-活动价")
     @ColumnWidth(15)
     private String f20;
+
+    @ExcelProperty(value = "全站总花费(元)")
+    @ColumnWidth(15)
+    private String q;
+    @ExcelProperty(value = "全站实际投产比")
+    @ColumnWidth(15)
+    private String r;
+    @ExcelProperty(value = "全站成交笔数")
+    @ColumnWidth(15)
+    private String s;
+    @ExcelProperty(value = "全站每笔成交花费(元)")
+    @ColumnWidth(15)
+    private String t;
+    @ExcelProperty(value = "全站每笔成交金额(元)")
+    @ColumnWidth(15)
+    private String u;
+    @ExcelProperty(value = "全站直接成交笔数")
+    @ColumnWidth(15)
+    private String v;
+    @ExcelProperty(value = "全站间接成交笔数")
+    @ColumnWidth(15)
+    private String w;
+    @ExcelProperty(value = "标准总花费(元)")
+    @ColumnWidth(15)
+    private String x;
+    @ExcelProperty(value = "标准实际投产比")
+    @ColumnWidth(15)
+    private String y;
+    @ExcelProperty(value = "标准成交笔数")
+    @ColumnWidth(15)
+    private String z;
+    @ExcelProperty(value = "标准每笔成交花费(元)")
+    @ColumnWidth(15)
+    private String aa;
+    @ExcelProperty(value = "标准直接成交笔数")
+    @ColumnWidth(15)
+    private String ab;
+    @ExcelProperty(value = "标准间接成交笔数")
+    @ColumnWidth(15)
+    private String ac;
+    @ExcelProperty(value = "标准每笔成交金额(元)")
+    @ColumnWidth(15)
+    private String ad;
 
     @ExcelProperty(value = "成本")
     @ColumnWidth(15)

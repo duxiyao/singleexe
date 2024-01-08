@@ -1,5 +1,6 @@
 package com.dxy.data;
 
+import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.alibaba.excel.converters.string.StringImageConverter;
@@ -77,10 +78,12 @@ public class MData extends BaseRowModel {
 
     @ExcelProperty(value = "断码资源位失效")
     @ColumnWidth(15)
+    @ExcelIgnore
     private String f16;
 
     @ExcelProperty(value = "百亿断码最大值")
     @ColumnWidth(15)
+    @ExcelIgnore
     private String f17;
 
     @ExcelProperty(value = "百亿基础价")
@@ -89,6 +92,7 @@ public class MData extends BaseRowModel {
 
     @ExcelProperty(value = "断码基础价")
     @ColumnWidth(15)
+    @ExcelIgnore
     private String f19 = "没参加";
 
     @ExcelProperty(value = "细分属性")

@@ -34,6 +34,369 @@ public class Tasks {
             60L, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>());
 
+    public static void exe3() throws ExecutionException, InterruptedException {
+
+        List<File> fileList = new ArrayList<>();
+        File workspace = new File(System.getProperty("user.dir"), "workspace3");
+//        File workspace = new File("E:/", "workspace");
+        FileHelper.listOnlyFilesByOneDeep(workspace, fileList);
+        fileList.forEach(file -> {
+            String fn = file.getName();
+            if (fn.contains("订单")) {
+                dd = file;
+            } else if (fn.startsWith("销售报表")) {
+                bb = file;
+            }
+        });
+
+        if (dd == null || bb == null) {
+            System.out.println("文件不全，请检查无误后继续");
+            return;
+        }
+
+
+//        dd = new File(workspace, "订单_2023-10-20_09-00-03.10291624.10825900_1更改 (1).xlsx");
+        FutureTask<List<DINGDAN>> futureTask = new FutureTask<>(() -> {
+            System.out.println("开始读取" + dd.getName() + "的数据");
+            List<DINGDAN> list = ExcelUtil.read(dd.getAbsolutePath(), DINGDAN.class);
+            list = list.parallelStream().filter(dingdan -> {
+                try {
+                    boolean flag = dingdan.getF5() == null || dingdan.getF5().isEmpty();
+                    if (dingdan.getF8() != null) {
+                        try {
+                            dingdan.setF8(decimalFormat.format(TypeUtil.parseDouble(dingdan.getF8())));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (flag) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }).collect(Collectors.toList());
+
+
+//            list = list.parallelStream().filter(dingdan -> {
+//                try {
+//                    boolean flag = (dingdan.getF1() != null && dingdan.getF1().contains("成功退款"));
+//                    if (flag) {
+//                        return false;
+//                    } else {
+//                        return true;
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                return true;
+//            }).collect(Collectors.toList());
+            System.out.println(dd.getName() + "的数据读取完毕");
+            return list;
+        });
+
+        FutureTask<Map<String, Pair>> futureTask1 = new FutureTask<>(() -> {
+            List<DINGDAN> list = futureTask.get();
+            Map<String, List<DINGDAN>> mDingdanhao = list.parallelStream().collect(Collectors.groupingBy(DINGDAN::getF4));
+            mDingdanhao.keySet().stream().forEach(s -> {
+                List<DINGDAN> l = mDingdanhao.get(s);
+                for (int i = 0; i < l.size(); i++) {
+                    if (i > 0) {
+                        l.get(i).setF8("0");
+                    }
+                }
+            });
+//            list.forEach(new Consumer<DINGDAN>() {
+//                @Override
+//                public void accept(DINGDAN dd1) {
+//                    String s = "";
+//                }
+//            });
+
+            //region 统计
+            try {
+                Map<String, List<DINGDAN>> mgroup = list.parallelStream()
+                        .collect(Collectors.groupingBy(DINGDAN::getF1));
+                Map<String, Double> mss = new HashMap<>();
+                Map<String, Double> mprice = new HashMap<>();
+                double sum = 0;
+                for (String s : mgroup.keySet()) {
+                    List<DINGDAN> ss = mgroup.get(s);
+                    DoubleSummaryStatistics statsPrice = ss.parallelStream().mapToDouble((x) -> TypeUtil.parseDouble(x.getF8())).summaryStatistics();
+                    mss.put(s, Double.parseDouble(decimalFormat.format(statsPrice.getSum())));
+                    mprice.put(s, Double.parseDouble(decimalFormat.format(statsPrice.getSum())));
+                    sum += statsPrice.getSum();
+                }
+                sum = Double.parseDouble(decimalFormat.format(sum));
+                double finalSum = sum;
+                Map<String, String> ssRet = mss.entrySet().stream().map(new Function<Map.Entry<String, Double>, Map.Entry<String, Double>>() {
+                    @Override
+                    public Map.Entry<String, Double> apply(Map.Entry<String, Double> stringDoubleEntry) {
+                        String k = stringDoubleEntry.getKey();
+                        Double d = stringDoubleEntry.getValue();
+                        stringDoubleEntry.setValue(d / finalSum);
+                        return stringDoubleEntry;
+                    }
+                }).collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        stringDoubleEntry -> decimalFormat4.format(100f * stringDoubleEntry.getValue()) + "%",
+                        (oldVal, newVal) -> oldVal,
+                        LinkedHashMap::new));
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("============\r\n");
+                ssRet.entrySet().stream().forEach(new Consumer<Map.Entry<String, String>>() {
+                    @Override
+                    public void accept(Map.Entry<String, String> stringStringEntry) {
+                        sb.append(stringStringEntry.getKey() + "\t" + mprice.get(stringStringEntry.getKey()) + "\t" + stringStringEntry.getValue() + "\r\n");
+                    }
+                });
+
+                sb.append("总计：" + decimalFormat.format(sum));
+                sb.append("\r\n============\r\n");
+                System.err.println(sb);
+                String s = "";
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            //endregion
+
+            Map<String, Pair> m = new HashMap<>();
+            Map<String, Map<String, List<DINGDAN>>> mgroup = list.parallelStream()
+                    .collect(Collectors.groupingBy(DINGDAN::getF5, Collectors.groupingBy(DINGDAN::getF1)));
+            mgroup.keySet().stream().forEach(s -> {
+                Map<String, List<DINGDAN>> mstatus = mgroup.get(s);
+                List<DINGDAN> ss = new ArrayList<>();
+                mstatus.values().forEach(dingdans -> {
+                    dingdans.forEach(dd1 -> {
+                        boolean flag = (dd1.getF1() != null && (dd1.getF1().contains("成功退款") || dd1.getF1().contains("等待退款")));
+                        if (!flag) {
+                            ss.add(dd1);
+                        }
+                    });
+                });
+                IntSummaryStatistics statsCnt = ss.parallelStream().mapToInt((x) -> TypeUtil.parseInt(x.getF9())).summaryStatistics();
+                DoubleSummaryStatistics statsPrice = ss.parallelStream().mapToDouble((x) -> TypeUtil.parseDouble(x.getF8())).summaryStatistics();
+
+                m.put(s, new Pair<Double, Long>(statsPrice.getSum(), statsCnt.getSum()));
+            });
+
+            return m;
+        });
+
+//        File bb = new File(workspace, "销售报表输出格式xlsx.xlsx");
+        FutureTask<List<XSBBTGSJ>> futureTask2 = new FutureTask<>(() -> {
+            System.out.println("开始读取" + bb.getName() + "的数据");
+            List<XSBBTGSJ> list = ExcelUtil.read(bb.getAbsolutePath(), XSBBTGSJ.class);
+            System.out.println(bb.getName() + "的数据读取完毕");
+
+            Map<String, Pair> m = futureTask1.get();
+
+            //region 草稿
+            List<A> caogao = new ArrayList<>();
+            m.keySet().stream().forEach(s -> {
+                A a = new A();
+                a.setF0(s);
+                Pair<Double, Long> p = m.get(s);
+                try {
+                    a.setF1(decimalFormat.format(p.getKey()));
+                    a.setF2(decimalFormat.format(p.getValue()));
+//                a.setF1(p.getKey().toString());
+//                a.setF2(p.getValue().toString());
+                    caogao.add(a);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
+            String outFilename = simpleDateFormat.format(new Date()) + "草稿.xlsx";
+            File outfp = new File(workspace, outFilename);
+            ExcelUtil.writeWithTemplate(outfp.getAbsolutePath(), caogao);
+            //endregion 草稿
+
+            List<XSBBTGSJ> newList = list.parallelStream().filter(xsbb -> {
+                boolean flag = m.containsKey(xsbb.getF9());
+                return flag;
+            }).collect(Collectors.toList());
+
+            Map<String, QZTG> mapTGQ = new HashMap<>();
+            Map<String, BZTG> mapTGB = new HashMap<>();
+            try {
+                //todo 合并数据推广
+                fileList.forEach(file -> {
+                    String fn = file.getName();
+                    if (fn.startsWith("全站推广_账户_分级详情_商品")) {
+                        List<QZTG> tmp = ExcelUtil.read(file.getAbsolutePath(), QZTG.class);
+                        tmp.forEach(new Consumer<QZTG>() {
+                            @Override
+                            public void accept(QZTG qztg) {
+                                mapTGQ.put(qztg.getF1(), qztg);
+                            }
+                        });
+                    } else if (fn.startsWith("标准推广_账户_分级详情_商品")) {
+                        List<BZTG> tmp = ExcelUtil.read(file.getAbsolutePath(), BZTG.class);
+                        tmp.forEach(new Consumer<BZTG>() {
+                            @Override
+                            public void accept(BZTG bztg) {
+                                mapTGB.put(bztg.getF1(), bztg);
+                            }
+                        });
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            newList.forEach(xsbb -> {
+                Pair<Double, Long> p = m.get(xsbb.getF9());
+                try {
+                    xsbb.setF3(xsbb.getF9());
+                    if (p.getValue() != 0) {
+                        xsbb.setF13(decimalFormat.format(p.getValue()));
+                    }
+                    if (p.getKey() != 0) {
+                        xsbb.setF14(decimalFormat.format(p.getKey()));
+                    }
+                    xsbb.setF15(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF13()) * TypeUtil.parseFloat(xsbb.getF21())));
+                    xsbb.setF16(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF14()) - TypeUtil.parseFloat(xsbb.getF15())));
+
+                    if (p.getValue() != 0) {
+                        xsbb.setF17(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF16()) / TypeUtil.parseFloat(xsbb.getF13())));
+                        xsbb.setF18(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF14()) / TypeUtil.parseFloat(xsbb.getF13())));
+                    }
+                    if (p.getKey() != 0) {
+                        xsbb.setF19(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF16()) / TypeUtil.parseFloat(xsbb.getF14())));
+                    }
+                    xsbb.setF20(decimalFormat.format(TypeUtil.parseFloat(xsbb.getF18()) - TypeUtil.parseFloat(xsbb.getF8())));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    //todo 合并数据推广
+                    QZTG qztg = mapTGQ.get(xsbb.getF9());
+                    BZTG bztg = mapTGB.get(xsbb.getF9());
+                    if (qztg != null) {
+                        xsbb.setQ(qztg.getF6());//全站总花费(元)
+                        xsbb.setR(qztg.getF9());//全站实际投产比
+                        xsbb.setS(qztg.getF10());//全站成交笔数
+                        xsbb.setT(qztg.getF11());//全站每笔成交花费(元)
+                        xsbb.setU(qztg.getF12());//全站每笔成交金额(元)
+                        xsbb.setV(qztg.getF15());//全站直接成交笔数
+                        xsbb.setW(qztg.getF16());//全站间接成交笔数
+                    } else {
+                        xsbb.setQ("找不到");//全站总花费(元)
+                        xsbb.setR("找不到");//全站实际投产比
+                        xsbb.setS("找不到");//全站成交笔数
+                        xsbb.setT("找不到");//全站每笔成交花费(元)
+                        xsbb.setU("找不到");//全站每笔成交金额(元)
+                        xsbb.setV("找不到");//全站直接成交笔数
+                        xsbb.setW("找不到");//全站间接成交笔数
+                    }
+                    if (bztg != null) {
+                        xsbb.setX(bztg.getF8());//标准总花费(元)
+                        xsbb.setY(bztg.getF13());//标准实际投产比
+                        xsbb.setZ(bztg.getF11());//标准成交笔数
+                        xsbb.setAa(bztg.getF10());//标准每笔成交花费(元)
+                        xsbb.setAb(bztg.getF28());//标准直接成交笔数
+                        xsbb.setAc(bztg.getF29());//标准间接成交笔数
+                        xsbb.setAd(bztg.getF14());//标准每笔成交金额(元)
+                    } else {
+                        xsbb.setX("找不到");//标准总花费(元)
+                        xsbb.setY("找不到");//标准实际投产比
+                        xsbb.setZ("找不到");//标准成交笔数
+                        xsbb.setAa("找不到");//标准每笔成交花费(元)
+                        xsbb.setAb("找不到");//标准直接成交笔数
+                        xsbb.setAc("找不到");//标准间接成交笔数
+                        xsbb.setAd("找不到");//标准每笔成交金额(元)
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
+            return newList;
+        });
+
+        E.submit(futureTask);
+        E.submit(futureTask1);
+        E.submit(futureTask2);
+
+
+        List<XSBBTGSJ> rets = new ArrayList<>();
+        rets.addAll(futureTask2.get());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
+
+//        Calendar cal = Calendar.getInstance();
+//        cal.add(Calendar.DATE, -1);
+//        Date d = cal.getTime();
+
+        Date d = new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24);
+
+        String outFilename = simpleDateFormat.format(d) + "销售报表加上推广数据输出.xlsx";
+        File outfp = new File(workspace, outFilename);
+//        ExcelUtil.writeWithTemplate(outfp.getAbsolutePath(), rets);
+
+
+        DoubleSummaryStatistics statsPrice = rets.parallelStream().mapToDouble((x) -> TypeUtil.parseDouble(x.getF14())).summaryStatistics();
+        double sum = statsPrice.getSum();
+        Map<String, Double> m = rets.parallelStream().collect(Collectors.groupingBy(XSBBTGSJ::getF33, Collectors.summingDouble(XSBBTGSJ::getDoubleF14)));
+
+        Map<String, Double> sortedMap = new LinkedHashMap<>();
+        //对m的value进行降序排列
+        m.entrySet().stream().sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .forEachOrdered(e -> {
+                    //判断占比大于等于15%才放进sortedMap
+                    if (e.getValue() / sum >= 0.15) {
+                        sortedMap.put(e.getKey(), e.getValue());
+                    }
+                });
+
+        List<List<XSBBTGSJ>> sheetDatas = new LinkedList<>();
+        sheetDatas.add(rets);
+        sortedMap.keySet().forEach(s -> sheetDatas.add(rets.parallelStream().filter(xsbb -> s.equals(xsbb.getF33())).collect(Collectors.toList())));
+
+        ExcelWriter excelWriter = null;
+        try {
+            excelWriter = EasyExcel.write(outfp.getAbsolutePath()).build();
+            for (int i = 0; i < sheetDatas.size(); i++) {
+                List<XSBBTGSJ> data = sheetDatas.get(i);
+                String sheetName = i + "";
+                if (i > 0) {
+                    try {
+                        sheetName = i + "_" + data.get(0).getF33();
+                    } catch (Exception e) {
+                    }
+                }
+                WriteSheet writeSheet = EasyExcel.writerSheet(i, sheetName).head(XSBBTGSJ.class).build();
+                excelWriter.write(data, writeSheet);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (excelWriter != null) {
+                excelWriter.finish();
+            }
+        }
+
+        E.submit(() -> {
+            try {
+                VersionCtlUtil.up(outfp.getAbsolutePath());
+            } catch (Exception e) {
+            }
+        });
+//        E.shutdown();
+
+        bb = null;
+        dd = null;
+        System.out.println("end");
+
+    }
+
     public static void exe2() throws ExecutionException, InterruptedException {
 
         List<File> fileList = new ArrayList<>();

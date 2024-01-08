@@ -412,8 +412,10 @@ public class ExcelUtil {
         Field[] fields = excelData1Class.getDeclaredFields();
         for (Field field : fields) {
             ExcelProperty excelProperty = field.getAnnotation(ExcelProperty.class);
-            String h = excelProperty.value()[0];
-            map.put(h, field);
+            if (excelProperty != null) {
+                String h = excelProperty.value()[0];
+                map.put(h, field);
+            }
         }
         return map;
     }
