@@ -189,6 +189,7 @@ public class One {
                                 m.setF23(panHuo.getF9());
                                 m.setF24(panHuo.getF8());
                                 m.setF25(panHuo.getF6());
+                                m.setF25x1(panHuo.getF10());
                             } else {
                                 m.setF13("没匹配到");
                                 m.setF14("没匹配到");

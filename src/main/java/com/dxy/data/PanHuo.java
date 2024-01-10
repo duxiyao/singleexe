@@ -49,4 +49,7 @@ public class PanHuo extends BaseRowModel {
         @ExcelProperty(value = "新款/动销款/清仓款")
         @ColumnWidth(15)
         private String f9;
+        @ExcelProperty(value = "24年款式店铺定位")
+        @ColumnWidth(15)
+        private String f10;
 }

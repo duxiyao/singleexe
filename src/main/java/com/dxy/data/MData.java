@@ -119,6 +119,10 @@ public class MData extends BaseRowModel {
     @ColumnWidth(15)
     private String f25;
 
+    @ExcelProperty(value = "24年款式店铺定位")
+    @ColumnWidth(15)
+    private String f25x1;
+
     @ExcelProperty(value = "新客立减(元)")
     @ColumnWidth(15)
     private String f26 = "0";

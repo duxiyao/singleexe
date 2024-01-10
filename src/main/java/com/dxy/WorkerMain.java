@@ -15,6 +15,7 @@ public class WorkerMain {
             try {
                 VersionCtlUtil.test("1");
                 VersionCtlUtil.test("2");
+                VersionCtlUtil.test("3");
                 VersionCtlUtil.up("");
             } catch (Exception e) {
             }
