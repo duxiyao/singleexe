@@ -120,8 +120,12 @@ public class FileHelper {
     }
 
     public static String readFileContent(String fileName) {
-        String encoding = "UTF-8";
         File file = new File(fileName);
+        return readFileContent(file);
+    }
+
+    public static String readFileContent(File file) {
+        String encoding = "UTF-8";
         Long filelength = file.length();
         byte[] filecontent = new byte[filelength.intValue()];
         try {

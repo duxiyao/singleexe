@@ -16,6 +16,7 @@ public class WorkerMain {
                 VersionCtlUtil.test("1");
                 VersionCtlUtil.test("2");
                 VersionCtlUtil.test("3");
+                VersionCtlUtil.test("4");
                 VersionCtlUtil.up("");
             } catch (Exception e) {
             }
@@ -29,6 +30,7 @@ public class WorkerMain {
                 System.out.println("1：处理【多多店铺商品资料】");
                 System.out.println("2：处理【销售报表】");
                 System.out.println("3：处理【销售报表加上推广数据】");
+                System.out.println("4：处理【标准推广-关键词-添加关键词列表】");
                 System.out.println("q：退出程序");
                 System.out.println("请输入：");
                 if (scan.hasNext()) {
@@ -48,6 +50,11 @@ public class WorkerMain {
                         VersionCtlUtil.test("3");
                         Tasks.exe3();
                         System.err.println("3：【销售报表加上推广数据】 处理完成");
+                    }
+                    if ("4".equals(s)) {
+                        VersionCtlUtil.test("4");
+                        Tasks.exe4();
+                        System.err.println("4：【标准推广-关键词-添加关键词列表】 处理完成");
                     }
                     if ("q".equals(s)) {
                         flag = false;

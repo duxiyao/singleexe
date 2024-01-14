@@ -9,6 +9,8 @@ import com.dxy.util.FileHelper;
 import com.dxy.util.VersionCtlUtil;
 import com.dxy.util.TypeUtil;
 import javafx.util.Pair;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -33,6 +35,62 @@ public class Tasks {
     public static final ExecutorService E = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors() * 2,
             60L, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>());
+
+    public static void exe4() throws ExecutionException, InterruptedException {
+        List<File> fileList = new ArrayList<>();
+        File workspace = new File(System.getProperty("user.dir"), "workspace4");
+//        File workspace = new File("e:\\1\\", "workspace");
+        FileHelper.listOnlyFilesByOneDeep(workspace, fileList);
+
+        Scanner scan = new Scanner(System.in);
+        boolean flag = true;
+        while (flag) {
+            System.out.println("老板，请选择要处理哪个文件");
+            for (int i = 0; i < fileList.size(); i++) {
+                File file = fileList.get(i);
+                String fn = file.getName();
+                System.out.println(i + ":" + fn);
+            }
+            System.out.println("q:退出当前业务");
+
+            if (scan.hasNext()) {
+                String s = scan.next();
+                if ("q".equals(s)) {
+                    flag = false;
+                    continue;
+                }
+                try {
+                    int i = (int) Double.parseDouble(s);
+                    File file = fileList.get(i);
+                    String jsonstr = FileHelper.readFileContent(file);
+                    JSONObject jsonObject = new JSONObject(jsonstr);
+                    JSONArray jarr = jsonObject.optJSONObject("result").optJSONArray("keywords");
+                    List<BztgGjc> rets = new ArrayList<>();
+                    for (int i1 = 0; i1 < jarr.length(); i1++) {
+                        JSONObject jo = jarr.optJSONObject(i1);
+                        BztgGjc bztgGjc=new BztgGjc();
+                        bztgGjc.setF0(jo.optString("word"));
+                        bztgGjc.setF1(jo.optString("heat"));
+                        bztgGjc.setF2(jo.optString("trend"));
+                        bztgGjc.setF3(jo.optString("compete"));
+                        bztgGjc.setF4(jo.optString("ctr"));
+                        bztgGjc.setF5(jo.optString("avgBid"));
+                        bztgGjc.setF6(jo.optString("suggestBid"));
+                        rets.add(bztgGjc);
+                    }
+
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
+                    String outFilename = simpleDateFormat.format(new Date()) + "标准推广-关键词-添加关键词列表.xlsx";
+                    File outfp = new File(workspace, outFilename);
+                    ExcelUtil.writeWithTemplate(outfp.getAbsolutePath(), rets);
+                    flag = false;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("处理失败");
+                }
+            }
+        }
+    }
 
     public static void exe3() throws ExecutionException, InterruptedException {
 
