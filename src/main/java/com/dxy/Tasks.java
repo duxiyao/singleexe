@@ -39,37 +39,24 @@ public class Tasks {
     public static void exe4() throws ExecutionException, InterruptedException {
         List<File> fileList = new ArrayList<>();
         File workspace = new File(System.getProperty("user.dir"), "workspace4");
-//        File workspace = new File("e:\\1\\", "workspace");
         FileHelper.listOnlyFilesByOneDeep(workspace, fileList);
-
-        Scanner scan = new Scanner(System.in);
-        boolean flag = true;
-        while (flag) {
-            System.out.println("老板，请选择要处理哪个文件");
-            for (int i = 0; i < fileList.size(); i++) {
-                File file = fileList.get(i);
-                String fn = file.getName();
-                System.out.println(i + ":" + fn);
-            }
-            System.out.println("q:退出当前业务");
-
-            if (scan.hasNext()) {
-                String s = scan.next();
-                if ("q".equals(s)) {
-                    flag = false;
-                    continue;
-                }
-                try {
-                    int i = (int) Double.parseDouble(s);
-                    File file = fileList.get(i);
-                    String jsonstr = FileHelper.readFileContent(file);
-                    JSONObject jsonObject = new JSONObject(jsonstr);
-                    JSONArray jarr = jsonObject.optJSONObject("result").optJSONArray("keywords");
-                    List<BztgGjc> rets = new ArrayList<>();
-                    for (int i1 = 0; i1 < jarr.length(); i1++) {
-                        JSONObject jo = jarr.optJSONObject(i1);
-                        BztgGjc bztgGjc=new BztgGjc();
-                        bztgGjc.setF0(jo.optString("word"));
+        if (fileList.size() == 0) {
+            System.out.println("请先查看workspace4里是否有要处理的文件");
+            return;
+        }
+        List<BztgGjc> rets = new ArrayList<>();
+        List<String> keys = new ArrayList<>();
+        fileList.forEach(file -> {
+            try {
+                String jsonstr = FileHelper.readFileContent(file);
+                JSONObject jsonObject = new JSONObject(jsonstr);
+                JSONArray jarr = jsonObject.optJSONObject("result").optJSONArray("keywords");
+                for (int i1 = 0; i1 < jarr.length(); i1++) {
+                    JSONObject jo = jarr.optJSONObject(i1);
+                    String word = jo.optString("word");
+                    if (!keys.contains(word)) {
+                        BztgGjc bztgGjc = new BztgGjc();
+                        bztgGjc.setF0(word);
                         bztgGjc.setF1(jo.optString("heat"));
                         bztgGjc.setF2(jo.optString("trend"));
                         bztgGjc.setF3(jo.optString("compete"));
@@ -77,19 +64,19 @@ public class Tasks {
                         bztgGjc.setF5(jo.optString("avgBid"));
                         bztgGjc.setF6(jo.optString("suggestBid"));
                         rets.add(bztgGjc);
+                        keys.add(word);
                     }
-
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
-                    String outFilename = simpleDateFormat.format(new Date()) + "标准推广-关键词-添加关键词列表.xlsx";
-                    File outfp = new File(workspace, outFilename);
-                    ExcelUtil.writeWithTemplate(outfp.getAbsolutePath(), rets);
-                    flag = false;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println("处理失败");
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("处理失败" + file.getAbsolutePath());
             }
-        }
+        });
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
+        String outFilename = simpleDateFormat.format(new Date()) + "标准推广-关键词-添加关键词列表.xlsx";
+        File outfp = new File(workspace, outFilename);
+        ExcelUtil.writeWithTemplate(outfp.getAbsolutePath(), rets);
     }
 
     public static void exe3() throws ExecutionException, InterruptedException {

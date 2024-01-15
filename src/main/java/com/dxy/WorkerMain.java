@@ -1,7 +1,9 @@
 package com.dxy;
 
+import com.dxy.util.FileHelper;
 import com.dxy.util.VersionCtlUtil;
 
+import java.io.File;
 import java.util.Scanner;
 
 public class WorkerMain {
@@ -16,7 +18,12 @@ public class WorkerMain {
                 VersionCtlUtil.test("1");
                 VersionCtlUtil.test("2");
                 VersionCtlUtil.test("3");
-                VersionCtlUtil.test("4");
+
+                File workspace = new File(System.getProperty("user.dir"), "workspace4");
+                FileHelper.deleteDir(workspace.getAbsolutePath());
+                if (!workspace.exists()) {
+                    workspace.mkdirs();
+                }
                 VersionCtlUtil.up("");
             } catch (Exception e) {
             }
@@ -52,7 +59,6 @@ public class WorkerMain {
                         System.err.println("3：【销售报表加上推广数据】 处理完成");
                     }
                     if ("4".equals(s)) {
-                        VersionCtlUtil.test("4");
                         Tasks.exe4();
                         System.err.println("4：【标准推广-关键词-添加关键词列表】 处理完成");
                     }
@@ -65,12 +71,14 @@ public class WorkerMain {
                     System.err.println();
                     System.err.println();
                     System.err.println("电脑要爆炸了！！！！！！！");
-                    Thread.sleep(1000);
-                    System.out.println(3);
-                    Thread.sleep(1000);
-                    System.out.println(2);
-                    Thread.sleep(1000);
-                    System.out.println(1);
+                    long millis = 500;
+                    Thread.sleep(millis);
+                    System.out.print(3);
+                    Thread.sleep(millis);
+                    System.out.print(2);
+                    Thread.sleep(millis);
+                    System.out.print(1);
+                    Thread.sleep(millis);
                     System.out.println("逗你玩~");
                     System.out.println();
                     System.out.println();
