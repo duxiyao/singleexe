@@ -61,8 +61,9 @@ public class Tasks {
                         bztgGjc.setF2(jo.optString("trend"));
                         bztgGjc.setF3(jo.optString("compete"));
                         bztgGjc.setF4(jo.optString("ctr"));
-                        bztgGjc.setF5(jo.optString("avgBid"));
-                        bztgGjc.setF6(jo.optString("suggestBid"));
+
+                        bztgGjc.setF5(String.valueOf(TypeUtil.parseFloat(jo.optString("avgBid")) / 1000f));
+                        bztgGjc.setF6(String.valueOf(TypeUtil.parseFloat(jo.optString("suggestBid")) / 1000f));
                         rets.add(bztgGjc);
                         keys.add(word);
                     }
