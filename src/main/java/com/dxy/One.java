@@ -212,6 +212,7 @@ public class One {
                             if (by != null) {
                                 m.setF15(by.getF12());
                                 m.setF18(by.getF6());
+                                m.setF36(by.getF1());
                             }
                         } catch (Exception e) {
 //                            if (WorkerMain.ISLOG) {
@@ -224,6 +225,7 @@ public class One {
                             if (dm != null) {
                                 m.setF16(dm.getF12());
                                 m.setF19(dm.getF6());
+                                m.setF36(dm.getF1());
                             }
                         } catch (Exception e) {
 //                            if (WorkerMain.ISLOG) {
