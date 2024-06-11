@@ -793,7 +793,7 @@ public class Tasks {
         List<Future<List<MData>>> list = new ArrayList<>();
         ones.forEach(a -> {
             try {
-                a.read();
+                a.read(workspace);
                 list.add(a.get(futureTask.get(), ferp.get()));
             } catch (Exception e) {
                 if (ISLOG) {

@@ -7,7 +7,9 @@ import com.dxy.util.TypeUtil;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -59,7 +61,7 @@ public class One {
         return fileProduct != null && fileGj != null && fileHd != null;
     }
 
-    public void read() {
+    public void read(File workspace) {
         fp = new FutureTask<>(() -> {
             System.out.println("开始读取" + name + " 商品管理" + "的数据");
             List<Product> list = ExcelUtil.read(fileProduct.getAbsolutePath(), Product.class);
@@ -88,21 +90,22 @@ public class One {
             list.forEach(yxhd -> {
                 if (yxhd != null) {
                     String name = yxhd.getF0();
-                    try {
-                        if (name.contains("【断码清仓百亿补贴】")) {
-                            if (!(name.contains("卷") || name.contains("降价") || name.contains("限量") || name.contains("限时"))) {
-                                dm.add(yxhd);
-                            }
-                        }
-                    } catch (Exception e) {
-                        if (ISLOG) {
-                            e.printStackTrace();
-                        }
-                    }
+//                    try {
+//                        if (name.contains("【断码清仓百亿补贴】")) {
+//                            if (!(name.contains("卷") || name.contains("降价") || name.contains("限量") || name.contains("限时"))) {
+//                                dm.add(yxhd);
+//                            }
+//                        }
+//                    } catch (Exception e) {
+//                        if (ISLOG) {
+//                            e.printStackTrace();
+//                        }
+//                    }
 
                     try {
                         if (name.contains("【百亿补贴】")) {
-                            if (!(name.contains("卷") || name.contains("降价") || name.contains("限量") || name.contains("限时"))) {
+//                            if (!(name.contains("卷") || name.contains("降价") || name.contains("限量") || name.contains("限时"))) {
+                            if (name.contains("百亿补贴报名入口") || name.contains("百亿补贴爆单-全品类召回") || name.contains("24h免审")) {
                                 by.add(yxhd);
                             }
                         }
@@ -116,6 +119,11 @@ public class One {
             ret[0] = by;
             ret[1] = dm;
             System.out.println(name + " 百亿断码 的数据过滤完毕");
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
+            String outFilename = simpleDateFormat.format(new Date()) + "百亿中间表.xlsx";
+            File outfp = new File(workspace, outFilename);
+            ExcelUtil.writeWithTemplate(outfp.getAbsolutePath(), by);
             return ret;
         });
 
@@ -153,7 +161,7 @@ public class One {
                         m.setF1(p.getF1());
                         m.setF2(p.getF2());
                         m.setF3(p.getF3());
-                        m.setF4(p.getF4());
+                        m.setF4("https://mobile.yangkeduo.com/goods.html?goods_id=" + p.getF1());
                         m.setF5(p.getF1());
                         m.setF6(p.getF13());
                         m.setF7(p.getF14());
