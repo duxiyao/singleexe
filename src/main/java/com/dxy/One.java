@@ -32,10 +32,12 @@ public class One {
     private File fileProduct;//商品管理
     private File fileGj;//营销工具
     private File fileHd;//营销活动
+    private File fileYHQ;//优惠券
     private ExecutorService E;
     private FutureTask<List<Product>> fp;
     private FutureTask<List<YXGJ>> fgj;
     private FutureTask<List<YXHD>> fhd;
+    private FutureTask<List<YHQ>> yhq;
     private FutureTask<List<YXHD>[]> fbydm;
 
     public One(String name, ExecutorService e) {
@@ -54,11 +56,13 @@ public class One {
             fileGj = file;
         } else if (fn.contains("营销活动")) {
             fileHd = file;
+        } else if (fn.contains("优惠券")) {
+            fileYHQ = file;
         }
     }
 
     public boolean canUse() {
-        return fileProduct != null && fileGj != null && fileHd != null;
+        return fileProduct != null && fileGj != null && fileHd != null && fileYHQ != null;
     }
 
     public void read(File workspace) {
@@ -78,6 +82,12 @@ public class One {
             System.out.println("开始读取" + name + " 营销活动" + "的数据");
             List<YXHD> list = ExcelUtil.read(fileHd.getAbsolutePath(), YXHD.class);
             System.out.println(name + " 营销活动 的数据读取完毕");
+            return list;
+        });
+        yhq = new FutureTask<>(() -> {
+            System.out.println("开始读取" + name + " 优惠券" + "的数据");
+            List<YHQ> list = ExcelUtil.read(fileYHQ.getAbsolutePath(), YHQ.class);
+            System.out.println(name + " 优惠券 的数据读取完毕");
             return list;
         });
 
@@ -131,6 +141,7 @@ public class One {
         E.submit(fgj);
         E.submit(fhd);
         E.submit(fbydm);
+        E.submit(yhq);
     }
 
     public Future<List<MData>> get(List<PanHuo> panHuos, List<ERP> erps) throws ExecutionException, InterruptedException {
@@ -142,6 +153,7 @@ public class One {
                 List<Product> products = fp.get();
                 List<YXGJ> yxgjs = fgj.get();
                 List<YXHD>[] bydms = fbydm.get();
+                List<YHQ> yhqs = yhq.get();
                 List<YXHD> by = bydms[0];
                 List<YXHD> dm = bydms[1];
 
@@ -150,6 +162,7 @@ public class One {
                 Map<String, YXHD> byMap = by.parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
                 Map<String, YXHD> dmMap = dm.parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
                 Map<String, YXGJ> gjMap = yxgjs.parallelStream().collect(Collectors.toMap(a -> a.getF1(), a -> a, (item1, item2) -> item1));
+                Map<String, YHQ> yhqMap = yhqs.parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
 
 
                 o = products.parallelStream().map(new Function<Product, MData>() {
@@ -251,6 +264,22 @@ public class One {
 //                            if (WorkerMain.ISLOG) {
 //                                e.printStackTrace();
 //                            }
+                        }
+
+                        try {
+                            m.setF37("0");
+                            m.setF38("0");
+                            YHQ yhq = yhqMap.get(m.getF1());
+                            String type = yhq.getF1();
+                            String v = yhq.getF4().replace("元", "");
+                            if (type.contains("惊喜券")) {
+                                m.setF37(v);
+                            }
+                            if (type.contains("商品立减券")) {
+                                m.setF38(v);
+                            }
+
+                        } catch (Exception e) {
                         }
 
                         try {

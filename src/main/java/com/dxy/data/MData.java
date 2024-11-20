@@ -123,9 +123,25 @@ public class MData extends BaseRowModel {
     @ColumnWidth(15)
     private String f25x1;
 
+    @ExcelProperty(value = "满两件折扣")
+    @ColumnWidth(15)
+    private String f35;
+
+    @ExcelProperty(value = "活动ID")
+    @ColumnWidth(15)
+    private String f36;
+
     @ExcelProperty(value = "新客立减(元)")
     @ColumnWidth(15)
     private String f26 = "0";
+
+    @ExcelProperty(value = "惊喜券")
+    @ColumnWidth(15)
+    private String f37;
+
+    @ExcelProperty(value = "商品立减券")
+    @ColumnWidth(15)
+    private String f38;
 
     @ExcelProperty(value = "类目名称")
     @ColumnWidth(15)
@@ -158,12 +174,4 @@ public class MData extends BaseRowModel {
     @ExcelProperty(value = "商品状态")
     @ColumnWidth(15)
     private String f34;
-
-    @ExcelProperty(value = "满两件折扣")
-    @ColumnWidth(15)
-    private String f35;
-
-    @ExcelProperty(value = "活动ID")
-    @ColumnWidth(15)
-    private String f36;
 }
