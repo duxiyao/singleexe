@@ -52,7 +52,7 @@ public class One {
         }
         if (fn.contains("商品管理")) {
             fileProduct = file;
-        } else if (fn.contains("营销工具")) {
+        } else if (fn.contains("新客立减")) {
             fileGj = file;
         } else if (fn.contains("营销活动")) {
             fileHd = file;
