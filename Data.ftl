@@ -10,7 +10,9 @@ import lombok.EqualsAndHashCode;
 @Data
 public class ${clsName} extends BaseRowModel {
     <#list datas as item>
-
+        /**
+        *   ${item.title}
+        */
         @ExcelProperty(value = "${item.title}")
         @ColumnWidth(15)
         private String ${item.fn};
