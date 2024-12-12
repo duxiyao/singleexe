@@ -37,7 +37,7 @@ public class One {
     private FutureTask<List<Product>> fp;
     private FutureTask<List<YXGJ>> fgj;
     private FutureTask<List<YXHD>> fhd;
-    private FutureTask<List<YHQ>> yhq;
+    private FutureTask<List<YHQ>[]> yhq;
     private FutureTask<List<YXHD>[]> fbydm;
 
     public One(String name, ExecutorService e) {
@@ -86,9 +86,24 @@ public class One {
         });
         yhq = new FutureTask<>(() -> {
             System.out.println("开始读取" + name + " 优惠券" + "的数据");
+            List<YHQ>[] ret = new ArrayList[2];
             List<YHQ> list = ExcelUtil.read(fileYHQ.getAbsolutePath(), YHQ.class);
+            List<YHQ> jxq = new ArrayList<>();
+            List<YHQ> spljq = new ArrayList<>();
+            list.forEach(yhq -> {
+                String type = yhq.getF1();
+                if (type.contains("惊喜券")) {
+                    jxq.add(yhq);
+                }
+                if (type.contains("商品立减券")) {
+                    spljq.add(yhq);
+                }
+            });
+
+            ret[0] = jxq;
+            ret[1] = spljq;
             System.out.println(name + " 优惠券 的数据读取完毕");
-            return list;
+            return ret;
         });
 
         fbydm = new FutureTask<>(() -> {
@@ -153,7 +168,7 @@ public class One {
                 List<Product> products = fp.get();
                 List<YXGJ> yxgjs = fgj.get();
                 List<YXHD>[] bydms = fbydm.get();
-                List<YHQ> yhqs = yhq.get();
+                List<YHQ>[] yhqs = yhq.get();
                 List<YXHD> by = bydms[0];
                 List<YXHD> dm = bydms[1];
 
@@ -162,7 +177,8 @@ public class One {
                 Map<String, YXHD> byMap = by.parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
                 Map<String, YXHD> dmMap = dm.parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
                 Map<String, YXGJ> gjMap = yxgjs.parallelStream().collect(Collectors.toMap(a -> a.getF1(), a -> a, (item1, item2) -> item1));
-                Map<String, YHQ> yhqMap = yhqs.parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
+                Map<String, YHQ> jxqMap = yhqs[0].parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
+                Map<String, YHQ> spljqMap = yhqs[1].parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
 
 
                 o = products.parallelStream().map(new Function<Product, MData>() {
@@ -266,19 +282,18 @@ public class One {
 //                            }
                         }
 
+                        m.setF37("0");
+                        m.setF38("0");
                         try {
-                            m.setF37("0");
-                            m.setF38("0");
-                            YHQ yhq = yhqMap.get(m.getF1());
-                            String type = yhq.getF1();
+                            YHQ yhq = jxqMap.get(m.getF1());
                             String v = yhq.getF4().replace("元", "");
-                            if (type.contains("惊喜券")) {
-                                m.setF37(v);
-                            }
-                            if (type.contains("商品立减券")) {
-                                m.setF38(v);
-                            }
-
+                            m.setF37(v);
+                        } catch (Exception e) {
+                        }
+                        try {
+                            YHQ yhq = spljqMap.get(m.getF1());
+                            String v = yhq.getF4().replace("元", "");
+                            m.setF38(v);
                         } catch (Exception e) {
                         }
 
