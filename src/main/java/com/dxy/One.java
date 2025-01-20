@@ -29,16 +29,18 @@ public class One {
     public static final String SHOP5 = "舒尚鞋类专营店";
 
     private String name;
-    private File fileProduct;//商品管理
+    private File fileProduct;//商品管理 商品列表
     private File fileGj;//营销工具
     private File fileHd;//营销活动
     private File fileYHQ;//优惠券
+    private File filePriceManager;//价格管理
     private ExecutorService E;
     private FutureTask<List<Product>> fp;
     private FutureTask<List<YXGJ>> fgj;
     private FutureTask<List<YXHD>> fhd;
     private FutureTask<List<YHQ>[]> yhq;
     private FutureTask<List<YXHD>[]> fbydm;
+    private FutureTask<List<PriceManager>> pm;
 
     public One(String name, ExecutorService e) {
         this.name = name;
@@ -50,7 +52,7 @@ public class One {
         if (!fn.contains(name)) {
             return;
         }
-        if (fn.contains("商品管理")) {
+        if (fn.contains("商品列表")) {
             fileProduct = file;
         } else if (fn.contains("新客立减")) {
             fileGj = file;
@@ -58,11 +60,13 @@ public class One {
             fileHd = file;
         } else if (fn.contains("优惠券")) {
             fileYHQ = file;
+        } else if (fn.contains("价格管理")) {
+            filePriceManager = file;
         }
     }
 
     public boolean canUse() {
-        return fileProduct != null && fileGj != null && fileHd != null && fileYHQ != null;
+        return fileProduct != null && fileGj != null && fileHd != null && fileYHQ != null && filePriceManager != null;
     }
 
     public void read(File workspace) {
@@ -152,11 +156,20 @@ public class One {
             return ret;
         });
 
+
+        pm = new FutureTask<>(() -> {
+            System.out.println("开始读取" + name + " 价格管理" + "的数据");
+            List<PriceManager> list = ExcelUtil.read(filePriceManager.getAbsolutePath(), PriceManager.class);
+            System.out.println(name + " 价格管理 的数据读取完毕");
+            return list;
+        });
+
         E.submit(fp);
         E.submit(fgj);
         E.submit(fhd);
         E.submit(fbydm);
         E.submit(yhq);
+        E.submit(pm);
     }
 
     public Future<List<MData>> get(List<PanHuo> panHuos, List<ERP> erps) throws ExecutionException, InterruptedException {
@@ -171,6 +184,7 @@ public class One {
                 List<YHQ>[] yhqs = yhq.get();
                 List<YXHD> by = bydms[0];
                 List<YXHD> dm = bydms[1];
+                List<PriceManager> pmlist = pm.get();
 
                 Map<String, ERP> erpMap = erps.parallelStream().collect(Collectors.toMap(erp -> erp.getF5(), erp -> erp, (item1, item2) -> item1));
                 Map<String, PanHuo> erpPanHuoMap = panHuos.parallelStream().collect(Collectors.toMap(panHuo -> panHuo.getF0(), panHuo -> panHuo, (item1, item2) -> item1));
@@ -179,7 +193,7 @@ public class One {
                 Map<String, YXGJ> gjMap = yxgjs.parallelStream().collect(Collectors.toMap(a -> a.getF1(), a -> a, (item1, item2) -> item1));
                 Map<String, YHQ> jxqMap = yhqs[0].parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
                 Map<String, YHQ> spljqMap = yhqs[1].parallelStream().collect(Collectors.toMap(a -> a.getF3(), a -> a, (item1, item2) -> item1));
-
+                Map<String, PriceManager> pmmap = pmlist.parallelStream().collect(Collectors.toMap(a -> a.getF0(), a -> a, (item1, item2) -> item1));
 
                 o = products.parallelStream().map(new Function<Product, MData>() {
                     //                List<MData> o = products.stream().map(new Function<Product, MData>() {
@@ -311,6 +325,13 @@ public class One {
                         m.setF33(p.getF16());
                         m.setF34(p.getF17());
                         m.setF35(p.getF18());
+
+                        try {
+                            PriceManager priceManager = pmmap.get(m.getF1());
+                            m.setF39(priceManager.getF2());
+                            m.setF40(priceManager.getF3());
+                        } catch (Exception e) {
+                        }
 
                         return m;
                     }

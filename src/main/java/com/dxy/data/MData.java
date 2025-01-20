@@ -174,4 +174,12 @@ public class MData extends BaseRowModel {
     @ExcelProperty(value = "商品状态")
     @ColumnWidth(15)
     private String f34;
+
+    @ExcelProperty(value = "1件实收最低场景 商家预估实收价格")
+    @ColumnWidth(15)
+    private String f39;
+
+    @ExcelProperty(value = "2件实收最低场景 商家预估实收价格")
+    @ColumnWidth(15)
+    private String f40;
 }
