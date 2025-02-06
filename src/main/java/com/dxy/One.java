@@ -25,7 +25,7 @@ public class One {
     public static final String SHOP1 = "强人满汾专卖店";
     public static final String SHOP2 = "强人女鞋旗舰店";
     public static final String SHOP3 = "强人旗舰店";
-    public static final String SHOP4 = "强人舒尚专卖店";
+    public static final String SHOP4 = "强人鞋类官方旗舰店";
     public static final String SHOP5 = "舒尚鞋类专营店";
 
     private String name;
