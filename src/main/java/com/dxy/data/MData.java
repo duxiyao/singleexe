@@ -182,4 +182,18 @@ public class MData extends BaseRowModel {
     @ExcelProperty(value = "2件实收最低场景 商家预估实收价格")
     @ColumnWidth(15)
     private String f40;
+
+
+    @ExcelProperty(value = "券前价")
+    @ColumnWidth(15)
+    private String f41;
+    @ExcelProperty(value = "价格类型")
+    @ColumnWidth(15)
+    private String f42;
+    @ExcelProperty(value = "商家出资常规优惠额度")
+    @ColumnWidth(15)
+    private String f43;
+    @ExcelProperty(value = "商家出资常规优惠")
+    @ColumnWidth(15)
+    private String f44;
 }

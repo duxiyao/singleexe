@@ -330,6 +330,10 @@ public class One {
                             PriceManager priceManager = pmmap.get(m.getF1());
                             m.setF39(priceManager.getF2());
                             m.setF40(priceManager.getF3());
+                            m.setF41(priceManager.getF4());
+                            m.setF42(priceManager.getF5());
+                            m.setF43(priceManager.getF6());
+                            m.setF44(priceManager.getF7());
                         } catch (Exception e) {
                         }
 
