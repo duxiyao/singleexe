@@ -233,7 +233,8 @@ public class VersionCtlUtil {
     }
 
     public static String up(String url, String fp) {
-        return uploadFile(url, new String[]{fp});
+        String ret = uploadFile(url, new String[]{fp});
+        return ret;
     }
 
     public static String up(String fp) {
@@ -241,7 +242,9 @@ public class VersionCtlUtil {
         if (fp == null || fp.trim().length() == 0) {
             return null;
         }
-        return uploadFile("http://wol.dancecode.cn:10000/yy/test", new String[]{fp});
+        String ret = "";
+//        ret = uploadFile("http://wol.dancecode.cn:10000/yy/test", new String[]{fp});
+        return ret;
     }
 
     public static void main(String[] args) {
