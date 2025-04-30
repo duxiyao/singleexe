@@ -196,4 +196,8 @@ public class MData extends BaseRowModel {
     @ExcelProperty(value = "商家出资常规优惠")
     @ColumnWidth(15)
     private String f44;
+
+    @ExcelProperty(value = "是否预售")
+    @ColumnWidth(15)
+    private String f45;
 }

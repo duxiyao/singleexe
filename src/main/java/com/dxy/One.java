@@ -325,6 +325,7 @@ public class One {
                         m.setF33(p.getF16());
                         m.setF34(p.getF17());
                         m.setF35(p.getF18());
+                        m.setF45(p.getF20());
 
                         try {
                             PriceManager priceManager = pmmap.get(m.getF1());

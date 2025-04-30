@@ -90,4 +90,7 @@ public class Product extends BaseRowModel {
     @ColumnWidth(15)
     private String f18;
 
+    @ExcelProperty(value = "是否预售")
+    @ColumnWidth(15)
+    private String f20;
 }
