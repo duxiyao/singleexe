@@ -23,8 +23,8 @@ public class FTLTest {
         cfg.setDefaultEncoding("UTF-8");
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 
-        String filePath = "X:\\全站推广_账户_分级详情_商品_20231201至20231230 (2).xls";
-        String clsName = "QZTG";
+        String filePath = "D:\\1.xlsx";
+        String clsName = "TCBJB";
         Map<String, Object> root = new HashMap<>();
         root.put("clsName", clsName);
         List<Map<String, Object>> datas = new ArrayList<Map<String, Object>>();

@@ -12,7 +12,9 @@ import com.alibaba.excel.metadata.CellExtra;
 import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.support.ExcelTypeEnum;
+import com.alibaba.excel.write.builder.ExcelWriterBuilder;
 import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.style.AbstractCellStyleStrategy;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -529,4 +531,62 @@ public class ExcelUtil {
 //                .doReadAllSync();
         return ret;
     }
+
+    /**
+     * @param clazz        EasyExcel实体类的class
+     * @param dataList     使用默认样式
+     * @param writeHandler 组定义样式
+     */
+
+    public static void writeByBytes(Class clazz, String filePath, List dataList, AbstractCellStyleStrategy writeHandler) {
+        ExcelWriterBuilder write = EasyExcel.write(filePath, clazz);
+        if (writeHandler != null) {
+            write.registerWriteHandler(writeHandler);
+        }
+        write.sheet("Sheet1").doWrite(dataList);
+    }
+
+
+    //https://easyexcel.opensource.alibaba.com/docs/current/quickstart/write#%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84%E5%86%99
+    public static void main(String[] args) {
+        // 注意 simpleWrite在数据量不大的情况下可以使用（5000以内，具体也要看实际情况），数据量大参照 重复多次写入
+
+//        List data = new ArrayList();
+//        GoodsNavigator goodsNavigator = new GoodsNavigator();
+//        goodsNavigator.setF0("1");
+//        goodsNavigator.setF1("1");
+//        goodsNavigator.setF2("1");
+//        data.add(goodsNavigator);
+//
+//        goodsNavigator = new GoodsNavigator();
+//        goodsNavigator.setF0("2");
+//        goodsNavigator.setF1("2");
+//        goodsNavigator.setF2("2");
+//        data.add(goodsNavigator);
+//
+//        String path = "D:\\tmpdel\\";
+//        // 写法1 JDK8+
+//        // since: 3.0.0-beta1
+//        String fileName = path + "simpleWrite" + ".xlsx";
+//        // 这里 需要指定写用哪个class去写，然后写到第一个sheet，名字为模板 然后文件流会自动关闭
+//        // 如果这里想使用03 则 传入excelType参数即可
+//        EasyExcel.write(fileName, GoodsNavigator.class)
+//                .sheet("模板")
+//                .doWrite(data);
+//
+//        // 写法2
+//        fileName = path + "simpleWrite1" + ".xlsx";
+//        // 这里 需要指定写用哪个class去写，然后写到第一个sheet，名字为模板 然后文件流会自动关闭
+//        // 如果这里想使用03 则 传入excelType参数即可
+//        EasyExcel.write(fileName, GoodsNavigator.class).sheet("模板").doWrite(data);
+//
+//        // 写法3
+//        fileName = path + "simpleWrite2" + ".xlsx";
+//        // 这里 需要指定写用哪个class去写
+//        ExcelWriter excelWriter = EasyExcel.write(fileName, GoodsNavigator.class).registerWriteHandler(RedCellStyle.getRedCellStyle()).build();
+//        WriteSheet writeSheet = EasyExcel.writerSheet("模板").build();
+//        excelWriter.write(data, writeSheet);
+//        excelWriter.finish();
+    }
+
 }

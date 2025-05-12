@@ -36,6 +36,178 @@ public class Tasks {
             60L, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>());
 
+    public static void exe5() throws ExecutionException, InterruptedException {
+        List<File> fileList = new ArrayList<>();
+        File workspace = new File(System.getProperty("user.dir"), "workspace5");
+        FileHelper.listOnlyFilesByOneDeep(workspace, fileList);
+        if (fileList.size() == 0) {
+            System.out.println("请先查看workspace4里是否有要处理的文件");
+            return;
+        }
+        List<Product> products = new ArrayList<>();
+        List<MData> mDatas = new ArrayList<>();
+        List<DGJ> dgjs = new ArrayList<>();
+
+        List<TCBJB> rets = new ArrayList<>();
+
+        fileList.forEach(file -> {
+            String fn = file.getName();
+            if (fn.contains("商品列表")) {
+                List<Product> ds = ExcelUtil.read(file.getAbsolutePath(), Product.class);
+                products.addAll(ds);
+            } else if (fn.contains("待改价信息")) {
+                // 读取 Excel 文件，跳过第一行（表头）
+                List<DGJ> ds = EasyExcel.read(file)
+                        .head(DGJ.class)
+                        .headRowNumber(2) // 设置从第2行开始读取（索引从0开始）
+                        .sheet()
+                        .doReadSync();
+                dgjs.addAll(ds);
+            } else if (fn.contains("多多店铺商品资料")) {
+                List<MData> ds = ExcelUtil.read(file.getAbsolutePath(), MData.class);
+                mDatas.addAll(ds);
+            }
+        });
+        if (products.size() == 0 || mDatas.size() == 0 || dgjs.size() == 0) {
+            System.out.println("数据缺失，请检查无误后继续");
+            return;
+        }
+        Map<String, Product> mapProduct = products.parallelStream().collect(Collectors.toMap(a -> a.getF1(), a -> a, (item1, item2) -> item1));
+        Map<String, MData> mapMData = mDatas.parallelStream().collect(Collectors.toMap(a -> a.getF5(), a -> a, (item1, item2) -> item1));
+
+        for (int i = 0; i < dgjs.size(); i++) {
+            DGJ dgj = dgjs.get(i);
+
+            String productId = dgj.getF1();
+            if (productId == null || productId.trim().length() == 0) {
+                continue;
+            }
+            Product p = mapProduct.get(productId);
+            MData m = mapMData.get(productId);
+
+
+            TCBJB tcbjb = new TCBJB();
+            try {
+                tcbjb.setF1(productId);
+                if (m != null) {
+                    tcbjb.setF9(m.getF11());
+                    tcbjb.setF10(m.getF12());
+                    tcbjb.setF11(m.getF13());
+                    tcbjb.setF12(m.getF26());
+                    tcbjb.setF13(m.getF37());
+                    tcbjb.setF14(m.getF38());
+                    tcbjb.setF41(m.getF14());
+                    tcbjb.setF42(m.getF15());
+                    tcbjb.setF43(m.getF18());
+                    tcbjb.setF44(m.getF20());
+                    tcbjb.setF45(m.getF21());
+                    tcbjb.setF46(m.getF22());
+                    tcbjb.setF47(m.getF23());
+                    tcbjb.setF48(m.getF24());
+                    tcbjb.setF49(m.getF25());
+                    tcbjb.setF50(m.getF25x1());
+                    tcbjb.setF51(m.getF35());
+                    tcbjb.setF52(m.getF36());
+
+                    tcbjb.setF53(m.getF27());
+                    tcbjb.setF54(m.getF28());
+                    tcbjb.setF55(m.getF29());
+                    tcbjb.setF56(m.getF30());
+                    tcbjb.setF57(m.getF31());
+                    tcbjb.setF58(m.getF32());
+                    tcbjb.setF59(m.getF33());
+                    tcbjb.setF60(m.getF34());
+                }
+                if (p != null) {
+                    tcbjb.setF0(p.getF0());
+                    tcbjb.setF2(p.getF2());
+                    tcbjb.setF3(p.getF3());
+                    tcbjb.setF4(p.getF4());
+                    tcbjb.setF5(productId);
+                    tcbjb.setF6(p.getF13());
+                    tcbjb.setF7(p.getF14());
+                    tcbjb.setF8(p.getF15());
+                    tcbjb.setF26(p.getF5());
+                    tcbjb.setF27(p.getF8());
+                    tcbjb.setF10(p.getF19());
+                    tcbjb.setF51(p.getF18());
+                    tcbjb.setF53(p.getF6());
+                    tcbjb.setF54(p.getF7());
+                    tcbjb.setF55(p.getF9());
+                    tcbjb.setF56(p.getF10());
+                    tcbjb.setF57(p.getF11());
+                    tcbjb.setF58(p.getF12());
+                    tcbjb.setF59(p.getF16());
+                    tcbjb.setF60(p.getF17());
+                }
+                tcbjb.setF24(dgj.getF11());
+                tcbjb.setF25(dgj.getF12());
+                tcbjb.setF29(dgj.getF9());//当前单件提报价(元)
+                tcbjb.setF30(dgj.getF10());//当前多件折扣
+                tcbjb.setF31(dgj.getF3());//建议单件提报价(元)
+                tcbjb.setF32(dgj.getF4());//降价后多件折扣
+                //建议单件提报价(元)减去当前单件提报价(元)
+                double f33 = TypeUtil.parseDouble(dgj.getF3()) - TypeUtil.parseDouble(dgj.getF9());
+                tcbjb.setF33(decimalFormat.format(f33));
+                //降价后多件折扣减去当前多件折扣
+                double f34 = TypeUtil.parseDouble(dgj.getF4()) - TypeUtil.parseDouble(dgj.getF10());
+                tcbjb.setF34(decimalFormat.format(f34));
+                //建议单件提报价(元)减去成本
+                String chengbeng = "";
+                if (m != null) {
+                    chengbeng = m.getF13();
+                } else {
+                    System.out.println("没有找到成本=>" + productId);
+                }
+                double f35 = TypeUtil.parseDouble(dgj.getF3()) - TypeUtil.parseDouble(chengbeng);
+                tcbjb.setF35(decimalFormat.format(f35));
+                //建议单件提报价(元)毛利/建议单件提报价(元)
+                tcbjb.setF36(decimalFormat.format(f35 / TypeUtil.parseDouble(dgj.getF3())));
+                //建议单件提报价(元)*降价后多件折扣*0.1
+                double f37 = TypeUtil.parseDouble(dgj.getF3()) * TypeUtil.parseDouble(dgj.getF4()) * 0.1;
+                tcbjb.setF37(decimalFormat.format(f37));
+                //降价后多件折扣价减去成本
+                double f38 = f37 - TypeUtil.parseDouble(chengbeng);
+                tcbjb.setF38(decimalFormat.format(f38));
+                //降价后多件折扣价毛利/降价后多件折扣价
+                tcbjb.setF39(decimalFormat.format(f38 / f37));
+                //用大于0和小于0等于0来作为判定是否有百亿标条件
+                //"这个是用当天下午活动价减去百亿基础价，大于0单元格红色表示，没有百亿标。
+                //如果用当天下午活动价减去百亿基础价，小于0或者等于0单元格用绿色表示。有百亿标"
+//                double f40 = TypeUtil.parseDouble(m.getF10()) - TypeUtil.parseDouble(m.getF18());
+                String byjcj = "";
+                if (m != null) {
+                    byjcj = m.getF18();
+                } else {
+                    System.out.println("没有找到百亿基础价=>" + productId);
+                }
+                String hdj = "";
+                if (p != null) {
+                    hdj = p.getF8();
+                } else {
+                    System.out.println("没有找到活动价=>" + productId);
+                }
+                double f40 = TypeUtil.parseDouble(hdj) - TypeUtil.parseDouble(byjcj);
+                tcbjb.setF40(decimalFormat.format(f40));
+                String f28 = "有百亿标";
+                if (f40 > 0) {
+                    f28 = "没有百亿标";//红色
+                }
+                tcbjb.setF28(f28);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            rets.add(tcbjb);
+        }
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
+        String outFilename = simpleDateFormat.format(new Date()) + "弹窗比价表.xlsx";
+        File outfp = new File(workspace, outFilename);
+        ExcelUtil.writeByBytes(TCBJB.class, outfp.getAbsolutePath(), rets, RedCellStyle.getRedCellStyle());
+        String s = "";
+    }
+
     public static void exe4() throws ExecutionException, InterruptedException {
         List<File> fileList = new ArrayList<>();
         File workspace = new File(System.getProperty("user.dir"), "workspace4");

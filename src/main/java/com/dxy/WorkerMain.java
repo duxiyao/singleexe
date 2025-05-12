@@ -18,6 +18,7 @@ public class WorkerMain {
                 VersionCtlUtil.test("1");
                 VersionCtlUtil.test("2");
                 VersionCtlUtil.test("3");
+                VersionCtlUtil.test("5");
 
                 File workspace = new File(System.getProperty("user.dir"), "workspace4");
                 FileHelper.deleteDir(workspace.getAbsolutePath());
@@ -38,6 +39,7 @@ public class WorkerMain {
                 System.out.println("2：处理【销售报表】");
                 System.out.println("3：处理【销售报表加上推广数据】");
                 System.out.println("4：处理【标准推广-关键词-添加关键词列表】");
+                System.out.println("5：处理【弹窗比价】");
                 System.out.println("q：退出程序");
                 System.out.println("请输入：");
                 if (scan.hasNext()) {
@@ -61,6 +63,10 @@ public class WorkerMain {
                     if ("4".equals(s)) {
                         Tasks.exe4();
                         System.err.println("4：【标准推广-关键词-添加关键词列表】 处理完成");
+                    }
+                    if ("5".equals(s)) {
+                        Tasks.exe5();
+                        System.err.println("5：【弹窗比价】 处理完成");
                     }
                     if ("q".equals(s)) {
                         flag = false;

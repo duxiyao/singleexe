@@ -6,9 +6,9 @@ import com.alibaba.excel.metadata.BaseRowModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Data
-public class ${clsName} extends BaseRowModel {
+public class ${clsName} {
     <#list datas as item>
         /**
         *   ${item.title}
