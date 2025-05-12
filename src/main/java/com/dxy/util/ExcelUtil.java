@@ -13,6 +13,7 @@ import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.builder.ExcelWriterBuilder;
+import com.alibaba.excel.write.handler.CellWriteHandler;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.style.AbstractCellStyleStrategy;
 import lombok.Data;
@@ -538,10 +539,13 @@ public class ExcelUtil {
      * @param writeHandler 组定义样式
      */
 
-    public static void writeByBytes(Class clazz, String filePath, List dataList, AbstractCellStyleStrategy writeHandler) {
+    public static void writeByBytes(Class clazz, String filePath, List dataList, AbstractCellStyleStrategy writeHandler, CellWriteHandler cellWriteHandler) {
         ExcelWriterBuilder write = EasyExcel.write(filePath, clazz);
         if (writeHandler != null) {
             write.registerWriteHandler(writeHandler);
+        }
+        if(cellWriteHandler!=null){
+            write.registerWriteHandler(cellWriteHandler);
         }
         write.sheet("Sheet1").doWrite(dataList);
     }

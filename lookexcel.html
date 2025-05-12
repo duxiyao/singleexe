@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel文件展示</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 98%;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .drop-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            transition: all 0.3s;
+        }
+        .drop-area.highlight {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+        .drop-area p {
+            font-size: 16px;
+            color: #555;
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            table-layout: fixed;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            font-size: 13px;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .product-img {
+            max-width: 100px;
+            max-height: 100px;
+            display: block;
+            margin: 0 auto;
+        }
+        .img-cell {
+            width: 120px;
+            min-width: 120px;
+            max-width: 120px;
+        }
+        .id-cell {
+            width: 100px;
+            min-width: 100px;
+            max-width: 100px;
+        }
+        .name-cell {
+            width: 180px;
+            min-width: 180px;
+            max-width: 180px;
+        }
+        .price-cell {
+            width: 80px;
+            min-width: 80px;
+            max-width: 80px;
+        }
+        .scrollable-table {
+            max-height: 70vh;
+            overflow-y: auto;
+            overflow-x: auto;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+        }
+        .file-info {
+            margin: 10px 0;
+            font-weight: bold;
+            color: #333;
+        }
+        .button-group {
+            margin: 10px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        button {
+            padding: 6px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button.secondary {
+            background-color: #6c757d;
+        }
+        button.secondary:hover {
+            background-color: #5a6268;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Excel文件展示工具</h1>
+        <div id="drop-area" class="drop-area">
+            <p>拖拽Excel文件到此处或点击选择文件</p>
+            <input type="file" id="fileInput" accept=".xlsx, .xls" style="display: none;">
+            <div class="button-group">
+                <button onclick="document.getElementById('fileInput').click()">选择文件</button>
+                <button id="autoResizeBtn" class="secondary tooltip" onclick="autoResizeColumns()">
+                    自动调整列宽
+                    <span class="tooltiptext">根据内容自动调整列宽</span>
+                </button>
+                <button id="compactViewBtn" class="secondary tooltip" onclick="setCompactView()">
+                    紧凑视图
+                    <span class="tooltiptext">缩小列宽以显示更多内容</span>
+                </button>
+            </div>
+            <div id="fileInfo" class="file-info"></div>
+        </div>
+        
+        <div class="scrollable-table">
+            <table id="excelTable">
+                <thead>
+                    <tr id="headerRow"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const headerRow = document.getElementById('headerRow');
+        const tableBody = document.getElementById('tableBody');
+        let currentData = [];
+        
+        // 防止默认拖放行为
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        // 高亮拖放区域
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
+        
+        // 处理拖放文件
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+        
+        // 处理选择文件
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(this.files);
+        });
+        
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            
+            const file = files[0];
+            fileInfo.textContent = `已选择文件: ${file.name}`;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                
+                // 获取第一个工作表
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                // 转换为JSON
+                currentData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                
+                // 显示数据
+                displayExcelData(currentData);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        
+        function displayExcelData(data) {
+            // 清空表格
+            headerRow.innerHTML = '';
+            tableBody.innerHTML = '';
+            
+            if (data.length === 0) return;
+            
+            // 获取表头
+            const headers = data[0];
+            
+            // 创建表头
+            headers.forEach((header, index) => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                
+                // 根据列内容设置不同的宽度类
+                if (header === '图片') {
+                    th.classList.add('img-cell');
+                } else if (header.includes('ID') || header.includes('编码')) {
+                    th.classList.add('id-cell');
+                } else if (header.includes('名称') || header.includes('商品名称')) {
+                    th.classList.add('name-cell');
+                } else if (header.includes('价') || header.includes('金额') || header.includes('成本')) {
+                    th.classList.add('price-cell');
+                }
+                
+                headerRow.appendChild(th);
+            });
+            
+            // 创建表格内容
+            for (let i = 1; i < data.length; i++) {
+                const row = data[i];
+                const tr = document.createElement('tr');
+                
+                headers.forEach((header, index) => {
+                    const td = document.createElement('td');
+                    const cellValue = row[index] !== undefined ? row[index] : '';
+                    
+                    // 继承表头的宽度类
+                    if (headerRow.children[index].classList.contains('img-cell')) {
+                        td.classList.add('img-cell');
+                    } else if (headerRow.children[index].classList.contains('id-cell')) {
+                        td.classList.add('id-cell');
+                    } else if (headerRow.children[index].classList.contains('name-cell')) {
+                        td.classList.add('name-cell');
+                    } else if (headerRow.children[index].classList.contains('price-cell')) {
+                        td.classList.add('price-cell');
+                    }
+                    
+                    // 检查是否是图片链接列
+                    if (header === '图片' && cellValue && (cellValue.startsWith('http://') || cellValue.startsWith('https://'))) {
+                        const img = document.createElement('img');
+                        img.src = cellValue;
+                        img.className = 'product-img';
+                        img.alt = '商品图片';
+                        img.onerror = function() {
+                            this.style.display = 'none';
+                        };
+                        td.appendChild(img);
+                    } else {
+                        td.textContent = cellValue;
+                    }
+                    
+                    tr.appendChild(td);
+                });
+                
+                tableBody.appendChild(tr);
+            }
+            
+            // 初始设置为紧凑视图
+            setCompactView();
+        }
+        
+        function autoResizeColumns() {
+            const table = document.getElementById('excelTable');
+            const headers = table.querySelectorAll('th');
+            
+            // 临时改为自动布局
+            table.style.tableLayout = 'auto';
+            
+            // 重置所有宽度
+            headers.forEach(header => {
+                header.style.width = 'auto';
+                header.style.minWidth = '';
+                header.style.maxWidth = '';
+            });
+            
+            // 计算每列最大宽度
+            const colWidths = Array(headers.length).fill(0);
+            
+            // 检查表头宽度
+            headers.forEach((header, colIndex) => {
+                colWidths[colIndex] = Math.max(colWidths[colIndex], header.scrollWidth);
+            });
+            
+            // 检查每行单元格宽度
+            const rows = table.querySelectorAll('tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                cells.forEach((cell, colIndex) => {
+                    if (colIndex < colWidths.length) {
+                        colWidths[colIndex] = Math.max(colWidths[colIndex], cell.scrollWidth);
+                    }
+                });
+            });
+            
+            // 应用计算出的宽度
+            headers.forEach((header, colIndex) => {
+                const calculatedWidth = Math.min(Math.max(colWidths[colIndex], 80), 300);
+                header.style.width = `${calculatedWidth}px`;
+                header.style.minWidth = `${calculatedWidth}px`;
+                header.style.maxWidth = `${calculatedWidth}px`;
+            });
+            
+            // 恢复固定布局
+            table.style.tableLayout = 'fixed';
+        }
+        
+        function setCompactView() {
+            const table = document.getElementById('excelTable');
+            const headers = table.querySelectorAll('th');
+            
+            table.style.tableLayout = 'fixed';
+            
+            headers.forEach(header => {
+                if (header.classList.contains('img-cell')) {
+                    header.style.width = '120px';
+                    header.style.minWidth = '120px';
+                    header.style.maxWidth = '120px';
+                } else if (header.classList.contains('id-cell')) {
+                    header.style.width = '80px';
+                    header.style.minWidth = '80px';
+                    header.style.maxWidth = '80px';
+                } else if (header.classList.contains('name-cell')) {
+                    header.style.width = '150px';
+                    header.style.minWidth = '150px';
+                    header.style.maxWidth = '150px';
+                } else if (header.classList.contains('price-cell')) {
+                    header.style.width = '70px';
+                    header.style.minWidth = '70px';
+                    header.style.maxWidth = '70px';
+                } else {
+                    header.style.width = '100px';
+                    header.style.minWidth = '100px';
+                    header.style.maxWidth = '200px';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

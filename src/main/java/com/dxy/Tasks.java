@@ -4,10 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.dxy.data.*;
-import com.dxy.util.ExcelUtil;
-import com.dxy.util.FileHelper;
-import com.dxy.util.VersionCtlUtil;
-import com.dxy.util.TypeUtil;
+import com.dxy.util.*;
 import javafx.util.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -49,6 +46,7 @@ public class Tasks {
         List<DGJ> dgjs = new ArrayList<>();
 
         List<TCBJB> rets = new ArrayList<>();
+        List<String> ids = new ArrayList<>();
 
         fileList.forEach(file -> {
             String fn = file.getName();
@@ -82,6 +80,9 @@ public class Tasks {
             if (productId == null || productId.trim().length() == 0) {
                 continue;
             }
+            if (ids.contains(productId)) {
+                continue;
+            }
             Product p = mapProduct.get(productId);
             MData m = mapMData.get(productId);
 
@@ -92,6 +93,9 @@ public class Tasks {
                 if (m != null) {
                     tcbjb.setF9(m.getF11());
                     tcbjb.setF10(m.getF12());
+//                    if (m.getF12() != null) {
+//                        tcbjb.setF10("<table><img src=\"" + m.getF12() + "\" height=45 width=45></table>");
+//                    }
                     tcbjb.setF11(m.getF13());
                     tcbjb.setF12(m.getF26());
                     tcbjb.setF13(m.getF37());
@@ -157,7 +161,8 @@ public class Tasks {
                 if (m != null) {
                     chengbeng = m.getF13();
                 } else {
-                    System.out.println("没有找到成本=>" + productId);
+//                    System.out.println("没有找到成本=>" + productId);
+                    continue;
                 }
                 double f35 = TypeUtil.parseDouble(dgj.getF3()) - TypeUtil.parseDouble(chengbeng);
                 tcbjb.setF35(decimalFormat.format(f35));
@@ -179,13 +184,15 @@ public class Tasks {
                 if (m != null) {
                     byjcj = m.getF18();
                 } else {
-                    System.out.println("没有找到百亿基础价=>" + productId);
+//                    System.out.println("没有找到百亿基础价=>" + productId);
+                    continue;
                 }
                 String hdj = "";
                 if (p != null) {
                     hdj = p.getF8();
                 } else {
-                    System.out.println("没有找到活动价=>" + productId);
+//                    System.out.println("没有找到活动价=>" + productId);
+                    continue;
                 }
                 double f40 = TypeUtil.parseDouble(hdj) - TypeUtil.parseDouble(byjcj);
                 tcbjb.setF40(decimalFormat.format(f40));
@@ -199,12 +206,14 @@ public class Tasks {
             }
 
             rets.add(tcbjb);
+            ids.add(productId);
         }
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
         String outFilename = simpleDateFormat.format(new Date()) + "弹窗比价表.xlsx";
         File outfp = new File(workspace, outFilename);
-        ExcelUtil.writeByBytes(TCBJB.class, outfp.getAbsolutePath(), rets, RedCellStyle.getRedCellStyle());
+//        ExcelUtil.writeByBytes(TCBJB.class, outfp.getAbsolutePath(), rets, RedCellStyle.getRedCellStyle(),new ImageWriteHandler());
+        ExcelUtil.writeByBytes(TCBJB.class, outfp.getAbsolutePath(), rets, RedCellStyle.getRedCellStyle(),null);
         String s = "";
     }
 
