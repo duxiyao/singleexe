@@ -109,7 +109,7 @@ public class TCBJB {
     /**
      * 首单立减
      */
-    @ExcelProperty(value = "搭配首单立减")
+    @ExcelProperty(value = "建议搭配首件立减（元）")
     @ColumnWidth(15)
     private String f24;
     /**
