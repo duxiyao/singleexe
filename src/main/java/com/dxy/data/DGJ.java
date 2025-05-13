@@ -87,4 +87,7 @@ public class DGJ {
         @ExcelProperty(value = "改价原因")
         @ColumnWidth(15)
         private String f12;
+        @ExcelProperty(value = "建议搭配首件立减（元）")
+        @ColumnWidth(15)
+        private String f13;
 }

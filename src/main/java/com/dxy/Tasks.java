@@ -142,7 +142,7 @@ public class Tasks {
                     tcbjb.setF59(p.getF16());
                     tcbjb.setF60(p.getF17());
                 }
-                tcbjb.setF24(dgj.getF11());
+                tcbjb.setF24(dgj.getF13());
                 tcbjb.setF25(dgj.getF12());
                 tcbjb.setF29(dgj.getF9());//当前单件提报价(元)
                 String dqdjzk = dgj.getF10();
