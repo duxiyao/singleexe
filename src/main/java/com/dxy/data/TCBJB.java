@@ -1,10 +1,13 @@
 package com.dxy.data;
 
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.format.NumberFormat;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.alibaba.excel.metadata.BaseRowModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
 
 @EqualsAndHashCode
 @Data
@@ -50,19 +53,22 @@ public class TCBJB {
      */
     @ExcelProperty(value = "库存")
     @ColumnWidth(15)
-    private String f6;
+    @NumberFormat("#")
+    private Integer f6;
     /**
      * 累计销量
      */
     @ExcelProperty(value = "累计销量")
     @ColumnWidth(15)
-    private String f7;
+    @NumberFormat("#")
+    private Integer f7;
     /**
      * 30日销量
      */
     @ExcelProperty(value = "30日销量")
     @ColumnWidth(15)
-    private String f8;
+    @NumberFormat("#")
+    private Integer f8;
     /**
      * erp编码
      */
@@ -80,7 +86,7 @@ public class TCBJB {
      */
     @ExcelProperty(value = "成本")
     @ColumnWidth(15)
-    private String f11;
+    private BigDecimal f11;
     /**
      * 新客立减(元)
      */

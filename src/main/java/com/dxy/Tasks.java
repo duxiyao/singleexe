@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -93,10 +94,7 @@ public class Tasks {
                 if (m != null) {
                     tcbjb.setF9(m.getF11());
                     tcbjb.setF10(m.getF12());
-//                    if (m.getF12() != null) {
-//                        tcbjb.setF10("<table><img src=\"" + m.getF12() + "\" height=45 width=45></table>");
-//                    }
-                    tcbjb.setF11(m.getF13());
+                    tcbjb.setF11(new BigDecimal(m.getF13()));
                     tcbjb.setF12(m.getF26());
                     tcbjb.setF13(m.getF37());
                     tcbjb.setF14(m.getF38());
@@ -126,14 +124,14 @@ public class Tasks {
                     tcbjb.setF0(p.getF0());
                     tcbjb.setF2(p.getF2());
                     tcbjb.setF3(p.getF3());
-                    tcbjb.setF4(p.getF4());
+                    tcbjb.setF4("https://mobile.yangkeduo.com/goods.html?goods_id=" + productId);
                     tcbjb.setF5(productId);
-                    tcbjb.setF6(p.getF13());
-                    tcbjb.setF7(p.getF14());
-                    tcbjb.setF8(p.getF15());
+                    tcbjb.setF6(TypeUtil.parseInt(p.getF13()));
+                    tcbjb.setF7(TypeUtil.parseInt(p.getF14()));
+                    tcbjb.setF8(TypeUtil.parseInt(p.getF15()));
                     tcbjb.setF26(p.getF5());
                     tcbjb.setF27(p.getF8());
-                    tcbjb.setF10(p.getF19());
+//                    tcbjb.setF10(p.getF19());
                     tcbjb.setF51(p.getF18());
                     tcbjb.setF53(p.getF6());
                     tcbjb.setF54(p.getF7());
@@ -147,14 +145,18 @@ public class Tasks {
                 tcbjb.setF24(dgj.getF11());
                 tcbjb.setF25(dgj.getF12());
                 tcbjb.setF29(dgj.getF9());//当前单件提报价(元)
-                tcbjb.setF30(dgj.getF10());//当前多件折扣
+                String dqdjzk = dgj.getF10();
+                if (dqdjzk != null) {
+                    dqdjzk = dqdjzk.replace("2件", "").replace("折", "");
+                }
+                tcbjb.setF30(dqdjzk);//当前多件折扣
                 tcbjb.setF31(dgj.getF3());//建议单件提报价(元)
                 tcbjb.setF32(dgj.getF4());//降价后多件折扣
                 //建议单件提报价(元)减去当前单件提报价(元)
                 double f33 = TypeUtil.parseDouble(dgj.getF3()) - TypeUtil.parseDouble(dgj.getF9());
                 tcbjb.setF33(decimalFormat.format(f33));
                 //降价后多件折扣减去当前多件折扣
-                double f34 = TypeUtil.parseDouble(dgj.getF4()) - TypeUtil.parseDouble(dgj.getF10());
+                double f34 = TypeUtil.parseDouble(dgj.getF4()) - TypeUtil.parseDouble(dqdjzk);
                 tcbjb.setF34(decimalFormat.format(f34));
                 //建议单件提报价(元)减去成本
                 String chengbeng = "";
@@ -213,7 +215,8 @@ public class Tasks {
         String outFilename = simpleDateFormat.format(new Date()) + "弹窗比价表.xlsx";
         File outfp = new File(workspace, outFilename);
 //        ExcelUtil.writeByBytes(TCBJB.class, outfp.getAbsolutePath(), rets, RedCellStyle.getRedCellStyle(),new ImageWriteHandler());
-        ExcelUtil.writeByBytes(TCBJB.class, outfp.getAbsolutePath(), rets, RedCellStyle.getRedCellStyle(),null);
+//        ExcelUtil.writeByBytes(TCBJB.class, outfp.getAbsolutePath(), rets, RedCellStyle.getRedCellStyle(),null);
+        ExcelUtil.writeByBytes(TCBJB.class, outfp.getAbsolutePath(), rets, RedCellStyle.getRedCellStyle(), new NumberFormatStrategy("#,##0.00", TCBJB.class));
         String s = "";
     }
 
