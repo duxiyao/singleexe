@@ -36,10 +36,10 @@ public class Tasks {
 
     public static void exe5() throws ExecutionException, InterruptedException {
         List<File> fileList = new ArrayList<>();
-        File workspace = new File(System.getProperty("user.dir"), "workspace5");
+        File workspace = new File(System.getProperty("user.dir"), "WK5");
         FileHelper.listOnlyFilesByOneDeep(workspace, fileList);
         if (fileList.size() == 0) {
-            System.out.println("请先查看workspace4里是否有要处理的文件");
+            System.out.println("请先查看WK5里是否有要处理的文件");
             return;
         }
         List<Product> products = new ArrayList<>();

@@ -18,9 +18,14 @@ public class WorkerMain {
                 VersionCtlUtil.test("1");
                 VersionCtlUtil.test("2");
                 VersionCtlUtil.test("3");
-                VersionCtlUtil.test("5");
+//                VersionCtlUtil.test("5");
 
-                File workspace = new File(System.getProperty("user.dir"), "workspace4");
+                File workspace = new File(System.getProperty("user.dir"), "WK5");
+                if (!workspace.exists()) {
+                    workspace.mkdirs();
+                }
+
+                workspace = new File(System.getProperty("user.dir"), "workspace4");
                 FileHelper.deleteDir(workspace.getAbsolutePath());
                 if (!workspace.exists()) {
                     workspace.mkdirs();
