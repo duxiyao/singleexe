@@ -14,6 +14,15 @@ import java.util.Map;
 
 public class VersionCtlUtil {
 
+    public static void test0(String i) {
+        try {
+            File workspace = new File(System.getProperty("user.dir"), "workspace" + i);
+            if (!workspace.exists()) {
+                workspace.mkdirs();
+            }
+        } catch (Exception e) {
+        }
+    }
     public static void test(String i) {
         try {
             File workspace = new File(System.getProperty("user.dir"), "workspace" + i);

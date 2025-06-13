@@ -34,6 +34,17 @@ public class Tasks {
             60L, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>());
 
+    public static void exe6() throws ExecutionException, InterruptedException {
+        List<File> fileList = new ArrayList<>();
+        File workspace = new File(System.getProperty("user.dir"), "workspace6");
+        FileHelper.listOnlyFilesByOneDeep(workspace, fileList);
+        if (fileList.size() == 0) {
+            System.out.println("请先查看workspace6里是否有要处理的文件 input.xlsx");
+            return;
+        }
+        String excelFilePath = "input.xlsx";
+    }
+
     public static void exe5() throws ExecutionException, InterruptedException {
         List<File> fileList = new ArrayList<>();
         File workspace = new File(System.getProperty("user.dir"), "WK5");
@@ -772,7 +783,7 @@ public class Tasks {
                     });
                 });
                 IntSummaryStatistics statsCnt = ss.parallelStream().mapToInt((x) -> TypeUtil.parseInt(x.getF9())).summaryStatistics();
-                DoubleSummaryStatistics statsPrice = ss.parallelStream().mapToDouble((x) -> TypeUtil.parseDouble(x.getF8())).summaryStatistics();
+                DoubleSummaryStatistics statsPrice = ss.parallelStream().mapToDouble((x) -> TypeUtil.parseDouble(x.getF40())).summaryStatistics();
 
                 m.put(s, new Pair<Double, Long>(statsPrice.getSum(), statsCnt.getSum()));
             });
@@ -814,10 +825,14 @@ public class Tasks {
                 boolean flag = m.containsKey(xsbb.getF9());
                 return flag;
             }).collect(Collectors.toList());
+            List<XSBB> todel = new ArrayList<>();
             newList.forEach(xsbb -> {
                 Pair<Double, Long> p = m.get(xsbb.getF9());
                 try {
                     xsbb.setF3(xsbb.getF9());
+                    if (p.getValue() == 0 || p.getKey() == 0) {
+                        todel.add(xsbb);
+                    }
                     if (p.getValue() != 0) {
                         xsbb.setF13(decimalFormat.format(p.getValue()));
                     }
@@ -840,6 +855,7 @@ public class Tasks {
                 }
             });
 
+            newList.removeAll(todel);
             return newList;
         });
 

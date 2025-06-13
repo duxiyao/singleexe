@@ -18,7 +18,7 @@ public class WorkerMain {
                 VersionCtlUtil.test("1");
                 VersionCtlUtil.test("2");
                 VersionCtlUtil.test("3");
-//                VersionCtlUtil.test("5");
+                VersionCtlUtil.test0("6");
 
                 File workspace = new File(System.getProperty("user.dir"), "WK5");
                 if (!workspace.exists()) {
@@ -45,6 +45,7 @@ public class WorkerMain {
                 System.out.println("3：处理【销售报表加上推广数据】");
                 System.out.println("4：处理【标准推广-关键词-添加关键词列表】");
                 System.out.println("5：处理【弹窗比价】");
+                System.out.println("6：处理【图片】");
                 System.out.println("q：退出程序");
                 System.out.println("请输入：");
                 if (scan.hasNext()) {
@@ -72,6 +73,10 @@ public class WorkerMain {
                     if ("5".equals(s)) {
                         Tasks.exe5();
                         System.err.println("5：【弹窗比价】 处理完成");
+                    }
+                    if ("6".equals(s)) {
+                        Tasks.exe6();
+                        System.err.println("5：【图片】 处理完成");
                     }
                     if ("q".equals(s)) {
                         flag = false;
