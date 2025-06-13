@@ -5,6 +5,7 @@ import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.dxy.data.*;
 import com.dxy.util.*;
+import com.dxy.util.test.ExcelImageExtractor;
 import javafx.util.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,7 +43,28 @@ public class Tasks {
             System.out.println("请先查看workspace6里是否有要处理的文件 input.xlsx");
             return;
         }
-        String excelFilePath = "input.xlsx";
+        fileList.forEach(file -> {
+            // 输入Excel文件路径
+            String excelFilePath = file.getAbsolutePath();
+            String fileNameWithoutExt = file.getName().replaceFirst("[.][^.]+$", "");
+            System.out.println("文件名（不带后缀）: " + fileNameWithoutExt);
+            // 输出图片文件夹路径
+            String outputFolder = fileNameWithoutExt+"_images/";
+
+            // 创建输出文件夹
+            File outdir = new File(workspace,outputFolder);
+            outdir.mkdirs();
+
+            try {
+                // 读取Excel并处理图片
+                ExcelImageExtractor.extractImagesFromExcel(excelFilePath, outdir.getAbsolutePath()+File.separator);
+            } catch (Exception e) {
+                System.err.println("处理Excel文件时出错: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
+        System.out.println("图片导出完成！");
+
     }
 
     public static void exe5() throws ExecutionException, InterruptedException {
