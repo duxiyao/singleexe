@@ -175,7 +175,7 @@ public class TasksH2 {
 
         String outFilename = simpleDateFormat.format(new Date()) + "最终数据.xlsx";
         File outfp = new File(out, outFilename);
-        ExcelUtil.writeByBytes(RETSJSC.class, outfp.getAbsolutePath(), retsjscs, null, new NumberFormatStrategy("#,##0.00", RETSJSC.class));
+        ExcelUtil.writeByBytes(RETSJSC.class, outfp.getAbsolutePath(), retsjscs, YanseCellStyle.getRedCellStyle(), new NumberFormatStrategy("#,##0.00", RETSJSC.class));
 
         Map<String, List<FJSJ>> groupedItems = fjsjList.stream()
                 .collect(Collectors.groupingBy(FJSJ::get活动大类));
@@ -184,7 +184,6 @@ public class TasksH2 {
             System.out.println("类别: " + category);
             String oFilename = simpleDateFormat.format(new Date()) + category + "_分解数据.xlsx";
             File ofp = new File(out, oFilename);
-//        ExcelUtil.writeByBytes(FJSJ.class, ofp.getAbsolutePath(), fjsjList, RedCellStyle.getRedCellStyle(), new NumberFormatStrategy("#,##0.00", TCBJB.class));
             ExcelUtil.writeByBytes(FJSJ.class, ofp.getAbsolutePath(), items, null, new NumberFormatStrategy("#,##0.00", FJSJ.class));
 
         });

@@ -187,21 +187,21 @@ public class RETSJSC {
         /**
         *   _226品牌限时折扣名称
         */
-        @ExcelProperty(value = "_226品牌限时折扣名称")
+        @ExcelProperty(value = "226品牌限时折扣名称")
         @ColumnWidth(15)
         @Column(name = "_226品牌限时折扣名称",type = "VARCHAR(100)")
         private String _226品牌限时折扣名称;
         /**
         *   _226品牌限时折扣力度
         */
-        @ExcelProperty(value = "_226品牌限时折扣力度")
+        @ExcelProperty(value = "226品牌限时折扣力度")
         @ColumnWidth(15)
         @Column(name = "_226品牌限时折扣力度",type = "VARCHAR(100)")
         private String _226品牌限时折扣力度;
         /**
         *   _226品牌限时折扣活动价
         */
-        @ExcelProperty(value = "_226品牌限时折扣活动价")
+        @ExcelProperty(value = "226品牌限时折扣活动价")
         @ColumnWidth(15)
         @Column(name = "_226品牌限时折扣活动价",type = "VARCHAR(100)")
         private String _226品牌限时折扣活动价;
