@@ -13,6 +13,7 @@ import org.h2.tools.Server;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.List;
 
 public class MyBatisH2Util {
     private static SqlSessionFactory sqlSessionFactory;
@@ -21,7 +22,7 @@ public class MyBatisH2Util {
         startwebserver();
     }
 
-    private static void startwebserver(){
+    private static void startwebserver() {
         try {
             //http://localhost:8082/
             Server webServer = Server.createWebServer("-webAllowOthers").start();
@@ -54,18 +55,33 @@ public class MyBatisH2Util {
             );
 
             Configuration configuration = new Configuration(environment);
-            // 添加映射器
-            configuration.addMapper(UserMapper.class);
 
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
         }
         return sqlSessionFactory;
     }
 
-    public static void createTables() {
+    public static void createTables(List<Class> clss,List<Class> mapper) {
+        // 添加映射器
+        for (Class cls : mapper) {
+            getSqlSessionFactory().getConfiguration().addMapper(cls);
+        }
         try (SqlSession session = getSqlSessionFactory().openSession()) {
             // 生成并执行创建表的SQL
-            String createUserTableSQL = TableGenerator.generateCreateTableSQL(User.class);
+            for (Class cls : clss) {
+                String createTableSQL = TableGenerator.generateCreateTableSQL(cls);
+                session.getConnection().createStatement().execute(createTableSQL);
+            }
+            session.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void createTables(Class cls) {
+        try (SqlSession session = getSqlSessionFactory().openSession()) {
+            // 生成并执行创建表的SQL
+            String createUserTableSQL = TableGenerator.generateCreateTableSQL(cls);
             session.getConnection().createStatement().execute(createUserTableSQL);
             session.commit();
         } catch (Exception e) {
