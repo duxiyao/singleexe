@@ -39,13 +39,11 @@ public class WorkerMain {
                 }
 
                 workspace = new File(System.getProperty("user.dir"), "226jiancha");
-                FileHelper.deleteDir(workspace.getAbsolutePath());
                 if (!workspace.exists()) {
                     workspace.mkdirs();
                 }
 
                 workspace = new File(System.getProperty("user.dir"), "216he226douzai");
-                FileHelper.deleteDir(workspace.getAbsolutePath());
                 if (!workspace.exists()) {
                     workspace.mkdirs();
                 }

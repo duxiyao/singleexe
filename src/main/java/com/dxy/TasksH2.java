@@ -106,7 +106,11 @@ public class TasksH2 {
         }
         if (hasDD && hasFJ && hasYXHD) {
         } else {
-            System.out.println("文件不全，请检查无误后继续");
+            System.err.println("文件不全，请检查无误后继续");
+            System.out.println("=====hasDD="+hasDD);
+            System.out.println("=====hasFJ="+hasFJ);
+            System.out.println("=====hasYXHD="+hasYXHD);
+            System.exit(0);
             return;
         }
         //endregion
@@ -154,7 +158,11 @@ public class TasksH2 {
                 d.set活动ID1(d.get活动ID());
             });
 
-            retsjscs = rerMapper.selectRETSJSC();
+            if (c.contains("tibao")) {
+                retsjscs = rerMapper.selectRETSJSC1();
+            } else {
+                retsjscs = rerMapper.selectRETSJSC2();
+            }
             retsjscs.forEach(d -> {
                 d.set商品ID1(d.get商品ID());
             });
