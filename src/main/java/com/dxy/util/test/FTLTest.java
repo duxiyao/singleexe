@@ -12,7 +12,8 @@ import java.util.stream.Collectors;
 
 public class FTLTest {
     public static void main(String[] args) throws Exception {
-        two();
+        one();
+//        two();
     }
 
     private static void two() throws IOException, TemplateException {
@@ -99,8 +100,11 @@ public class FTLTest {
         cfg.setDefaultEncoding("UTF-8");
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 
-        String filePath = "D:\\1.xlsx";
-        String clsName = "TCBJB";
+//        String filePath = "D:\\1.xlsx";
+//        String clsName = "TCBJB";
+        String filePath = "D:\\TMP\\品质诊断-预警商品1.xlsx";
+        String clsName = "PZZDYJSP";
+
         Map<String, Object> root = new HashMap<>();
         root.put("clsName", clsName);
         List<Map<String, Object>> datas = new ArrayList<Map<String, Object>>();
