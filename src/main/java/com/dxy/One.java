@@ -27,6 +27,7 @@ public class One {
     public static final String SHOP3 = "强人旗舰店";
     public static final String SHOP4 = "强人鞋类官方旗舰店";
     public static final String SHOP5 = "舒尚鞋类专营店";
+    public static final String SHOP6 = "强人舒尚专卖店";
 
     private String name;
     private File fileProduct;//商品管理 商品列表
@@ -66,6 +67,21 @@ public class One {
     }
 
     public boolean canUse() {
+        if (fileProduct == null) {
+            System.err.println(name + " 【商品管理 商品列表】 文档缺失");
+        }
+        if (fileGj == null) {
+            System.err.println(name + " 【营销工具】 文档缺失");
+        }
+        if (fileHd == null) {
+            System.err.println(name + " 【营销活动】 文档缺失");
+        }
+        if (fileYHQ == null) {
+            System.err.println(name + " 【优惠券】 文档缺失");
+        }
+        if (filePriceManager == null) {
+            System.err.println(name + " 【价格管理】 文档缺失");
+        }
         return fileProduct != null && fileGj != null && fileHd != null && fileYHQ != null && filePriceManager != null;
     }
 

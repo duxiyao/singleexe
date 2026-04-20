@@ -966,6 +966,7 @@ public class Tasks {
         ones.add(new One(One.SHOP3, E));
         ones.add(new One(One.SHOP4, E));
         ones.add(new One(One.SHOP5, E));
+        ones.add(new One(One.SHOP6, E));
 
         List<File> fileList = new ArrayList<>();
         File workspace = new File(System.getProperty("user.dir"), "workspace1");
