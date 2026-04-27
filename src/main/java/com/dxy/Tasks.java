@@ -35,6 +35,96 @@ public class Tasks {
             60L, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>());
 
+    /**
+     * 7：处理【聚水潭资源位信息表】
+     * 根据【多多店铺商品资料】和【ERP店铺商品资料】两个文件，
+     * 通过 商品ID = 平台店铺款式编码 关联，输出聚水潭资源位信息表。
+     * 找不到匹配项时输出 #N/A
+     */
+    public static void exe7() throws ExecutionException, InterruptedException {
+        List<File> fileList = new ArrayList<>();
+        File workspace = new File(System.getProperty("user.dir"), "WK7");
+        FileHelper.listOnlyFilesByOneDeep(workspace, fileList);
+        if (fileList.size() == 0) {
+            System.out.println("请先查看workspace7里是否有要处理的文件");
+            return;
+        }
+
+        // 分类读取文件
+        List<DDSP> ddsps = new ArrayList<>();
+        List<ERPFull> erps = new ArrayList<>();
+
+        fileList.forEach(file -> {
+            String fn = file.getName();
+            if (fn.contains("多多店铺商品资料")) {
+                System.out.println("开始读取多多店铺商品资料: " + fn);
+                List<DDSP> ds = ExcelUtil.read(file.getAbsolutePath(), DDSP.class);
+                ddsps.addAll(ds);
+                System.out.println("多多店铺商品资料读取完毕，共 " + ds.size() + " 条");
+            } else if (fn.contains("ERP")) {
+                System.out.println("开始读取ERP店铺商品资料: " + fn);
+                List<ERPFull> ds = ExcelUtil.read(file.getAbsolutePath(), ERPFull.class);
+                erps.addAll(ds);
+                System.out.println("ERP店铺商品资料读取完毕，共 " + ds.size() + " 条");
+            }
+        });
+
+        if (ddsps.size() == 0 || erps.size() == 0) {
+            System.out.println("数据缺失，请检查workspace7中是否包含【多多店铺商品资料】和【ERP】文件");
+            return;
+        }
+
+        // 构建查找Map: 商品ID -> DDSP
+        Map<String, DDSP> ddspMap = ddsps.parallelStream()
+                .collect(Collectors.toMap(a -> a.getF0(), a -> a, (item1, item2) -> item1));
+
+        // 遍历ERP数据，生成输出
+        List<JSTZY> rets = new ArrayList<>();
+        for (ERPFull erp : erps) {
+            JSTZY out = new JSTZY();
+            // 直接来自ERP (b.xlsx)
+            out.setF0(erp.getF0());   // 店铺名称
+            out.setF1(erp.getF1());   // 系统款式编码
+            out.setF2(erp.getF2());   // 系统商品编码
+            out.setF3(erp.getF3());   // 平台店铺款式编码
+            out.setF8(erp.getF4());   // 平台店铺商品编码
+            out.setF9(erp.getF5());   // 线上款式编码
+            out.setF10(erp.getF6());  // 线上商品编码
+            out.setF11(erp.getF7());  // 链接同步设置
+
+            // 通过 平台店铺款式编码=商品ID 查找多多店铺商品资料
+            String key = erp.getF3();
+            DDSP ddsp = (key != null && key.trim().length() > 0) ? ddspMap.get(key.trim()) : null;
+            if (ddsp != null) {
+                out.setF4(ddsp.getF1());  // 百亿基础价
+                out.setF5(ddsp.getF2());  // 资源位
+                out.setF6(ddsp.getF3());  // 新客立减
+                out.setF7(ddsp.getF4());  // 是否预售
+                out.setF7a(ddsp.getF5());  // 价格类型
+                out.setF7a1(ddsp.getF8()); // 1件实收最低场景 商家预估实收价格
+                out.setF7b(ddsp.getF6());  // 商家出资常规优惠额度
+                out.setF7c(ddsp.getF7());  // 商家出资常规优惠
+            } else {
+                out.setF4("#N/A");
+                out.setF5("#N/A");
+                out.setF6("#N/A");
+                out.setF7("#N/A");
+                out.setF7a("#N/A");
+                out.setF7a1("#N/A");
+                out.setF7b("#N/A");
+                out.setF7c("#N/A");
+            }
+            rets.add(out);
+        }
+
+        // 写入输出文件
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy年MM月dd号");
+        String outFilename = simpleDateFormat.format(new Date()) + "聚水潭资源位信息表.xlsx";
+        File outfp = new File(workspace, outFilename);
+        ExcelUtil.writeWithTemplate(outfp.getAbsolutePath(), rets);
+        System.out.println("end");
+    }
+
     public static void exe6() throws ExecutionException, InterruptedException {
         List<File> fileList = new ArrayList<>();
         File workspace = new File(System.getProperty("user.dir"), "workspace6");

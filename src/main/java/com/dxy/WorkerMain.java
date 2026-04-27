@@ -25,6 +25,11 @@ public class WorkerMain {
                     workspace.mkdirs();
                 }
 
+                workspace = new File(System.getProperty("user.dir"), "WK7");
+                if (!workspace.exists()) {
+                    workspace.mkdirs();
+                }
+
                 workspace = new File(System.getProperty("user.dir"), "workspace4");
                 FileHelper.deleteDir(workspace.getAbsolutePath());
                 if (!workspace.exists()) {
@@ -38,7 +43,7 @@ public class WorkerMain {
             boolean flag = true;
             while (flag) {
                 System.out.println();
-                System.out.println("请将对应要处理的数据文件，放入对应的workerspace1 或 workerspace2 中.");
+                System.out.println("请将对应要处理的数据文件，放入对应的workspace目录中.");
                 System.out.println("请选择要执行的功能，并敲回车确定：");
                 System.out.println("1：处理【多多店铺商品资料】");
                 System.out.println("2：处理【销售报表】");
@@ -46,6 +51,7 @@ public class WorkerMain {
                 System.out.println("4：处理【标准推广-关键词-添加关键词列表】");
                 System.out.println("5：处理【弹窗比价】");
                 System.out.println("6：处理【图片】");
+                System.out.println("7：处理【聚水潭资源位信息表】");
                 System.out.println("q：退出程序");
                 System.out.println("请输入：");
                 if (scan.hasNext()) {
@@ -76,7 +82,11 @@ public class WorkerMain {
                     }
                     if ("6".equals(s)) {
                         Tasks.exe6();
-                        System.err.println("5：【图片】 处理完成");
+                        System.err.println("6：【图片】 处理完成");
+                    }
+                    if ("7".equals(s)) {
+                        Tasks.exe7();
+                        System.err.println("7：【聚水潭资源位信息表】 处理完成");
                     }
                     if ("q".equals(s)) {
                         flag = false;
